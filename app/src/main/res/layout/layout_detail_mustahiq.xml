@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="@dimen/dist_large"
+    android:background="@color/text_secondary"
+    android:orientation="vertical">
+    <agency.tango.android.avatarview.views.AvatarView
+        android:id="@+id/foto_profil"
+        android:layout_height="@dimen/foto_profil_detail_size"
+        android:layout_width="@dimen/foto_profil_detail_size"
+        app:av_border_color="@android:color/white"
+        app:av_border_width="4dp"
+        app:av_text_size_percentage="35"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.ad.zakat.widget.RobotoBoldTextView
+            android:id="@+id/nama_mustahiq"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_large"
+            android:textColor="@color/text_primary"
+            android:maxLines="1"
+            android:ellipsize="end"
+            tools:text="nama_mustahiq"/>
+
+        <com.ad.zakat.widget.RobotoLightTextView
+            android:id="@+id/alamat_mustahiq"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_large"
+            android:textColor="@color/text_primary"
+            android:maxLines="1"
+            android:ellipsize="end"
+            tools:text="alamat_mustahiq"/>
+        <com.ad.zakat.widget.RobotoLightTextView
+            android:id="@+id/no_identitas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_large"
+            android:textColor="@color/text_primary"
+            android:maxLines="1"
+            android:ellipsize="end"
+            tools:text="no_identitas"/>
+        <com.ad.zakat.widget.RobotoLightTextView
+            android:id="@+id/no_telp_mustahiq"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_large"
+            android:textColor="@color/text_primary"
+            android:maxLines="1"
+            android:ellipsize="end"
+            tools:text="no_telp_mustahiq"/>
+        <com.ad.zakat.widget.RobotoLightTextView
+            android:id="@+id/nama_amil_zakat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_large"
+            tools:text="nama_amil_zakat" />
+        <com.ad.zakat.widget.RobotoLightTextView
+            android:id="@+id/validasi_mustahiq"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_large"
+            android:textColor="@color/text_primary"
+            android:maxLines="1"
+            android:ellipsize="end"
+            tools:text="validasi_mustahiq"/>
+        <com.ad.zakat.widget.RobotoLightTextView
+            android:id="@+id/status_mustahiq"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_large"
+            android:textColor="@color/text_primary"
+            android:maxLines="1"
+            android:ellipsize="end"
+            tools:text="status_mustahiq"/>
+        <com.ad.zakat.widget.RobotoLightTextView
+            android:id="@+id/waktu_terakhir_donasi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_large"
+            tools:text="waktu_terakhir_donasi" />
+    </LinearLayout>
+
+</LinearLayout>

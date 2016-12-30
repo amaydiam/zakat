@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group
+        android:id="@+id/drawer_group">
+
+        <item
+            android:title="Muzaki">
+            <menu>
+                <group >
+                    <item
+                        android:id="@+id/drawer_donasi"
+                        android:title="@string/drawer_donasi"
+                        android:checkable="true"/>
+                    <item
+                        android:id="@+id/drawer_laporan_donasi"
+                        android:title="@string/drawer_laporan_donasi"
+                        android:checkable="true"/>
+                </group>
+            </menu>
+        </item>
+        <item
+            android:title="Admin">
+            <menu>
+                <group >
+                    <item
+                        android:id="@+id/drawer_mustahiq"
+                        android:title="@string/drawer_mustahiq"
+                        android:checkable="true" />
+                </group>
+            </menu>
+        </item>
+
+    </group>
+
+
+</menu>
+
