@@ -1,1 +1,1 @@
-This is the repository for android dev.
+Zakat si Devi
