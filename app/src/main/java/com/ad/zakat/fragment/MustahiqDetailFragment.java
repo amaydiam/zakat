@@ -46,9 +46,10 @@ import butterknife.Unbinder;
 
 public class MustahiqDetailFragment extends Fragment implements ManageMustahiqFragment.AddEditMustahiqListener, CustomVolley.OnCallbackResponse {
 
+    private static final String TAG_DETAIL = "TAG_DETAIL";
+    private static final String TAG_AMIL_ZAKAT = "TAG_AMIL_ZAKAT";
     @BindBool(R.bool.is_tablet)
     boolean isTablet;
-
     // Toolbar
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -58,7 +59,6 @@ public class MustahiqDetailFragment extends Fragment implements ManageMustahiqFr
     TextView toolbarTitle;
     @BindView(R.id.toolbar_subtitle)
     TextView toolbarSubtitle;
-
     // Main views
     @BindView(R.id.progress_circle)
     View progressCircle;
@@ -72,44 +72,36 @@ public class MustahiqDetailFragment extends Fragment implements ManageMustahiqFr
     NestedScrollView movieHolder;
     @BindView(R.id.fab_action)
     FloatingActionButton fabAction;
-    private ProgressDialog dialogProgress;
-
-
-    @OnClick(R.id.fab_action)
-    void EditMustahiq() {
-
-        queue = customVolley.Rest(Request.Method.GET, ApiHelper.getAmilZakatLink(getActivity()), null, TAG_AMIL_ZAKAT);
-    }
-
     // Basic info
     @BindView(R.id.foto_profil)
     AvatarView fotoProfil;
-    @BindView(R.id.nama_mustahiq)
-    RobotoBoldTextView namaMustahiq;
-    @BindView(R.id.alamat_mustahiq)
-    RobotoLightTextView alamatMustahiq;
-    @BindView(R.id.no_identitas)
-    RobotoLightTextView noIdentitas;
-    @BindView(R.id.no_telp_mustahiq)
-    RobotoLightTextView noTelpMustahiq;
-    @BindView(R.id.validasi_mustahiq)
-    RobotoLightTextView validasiMustahiq;
-    @BindView(R.id.status_mustahiq)
-    RobotoLightTextView statusMustahiq;
+    @BindView(R.id.nama_calon_mustahiq)
+    RobotoBoldTextView namaCalonMustahiq;
+    @BindView(R.id.alamat_calon_mustahiq)
+    RobotoLightTextView alamatCalonMustahiq;
+    @BindView(R.id.no_identitas_calon_mustahiq)
+    RobotoLightTextView noIdentitasCalonMustahiq;
+    @BindView(R.id.no_telp_calon_mustahiq)
+    RobotoLightTextView noTelpCalonMustahiq;
     @BindView(R.id.nama_amil_zakat)
     RobotoLightTextView namaAmilZakat;
+    @BindView(R.id.status_mustahiq)
+    RobotoLightTextView statusMustahiq;
     @BindView(R.id.waktu_terakhir_donasi)
     RobotoLightTextView waktuTerakhirDonasi;
-
+    private ProgressDialog dialogProgress;
     private Unbinder unbinder;
     private String id;
     private Mustahiq mustahiq;
     private PicassoLoader imageLoader;
     private CustomVolley customVolley;
     private RequestQueue queue;
-    private static final String TAG_DETAIL = "TAG_DETAIL";
-    private static final String TAG_AMIL_ZAKAT = "TAG_AMIL_ZAKAT";
 
+    @OnClick(R.id.fab_action)
+    void EditMustahiq() {
+
+        queue = customVolley.Rest(Request.Method.GET, ApiHelper.getAmilZakatLink(getActivity()), null, TAG_AMIL_ZAKAT);
+    }
 
     // Fragment lifecycle
     @Override
@@ -138,7 +130,7 @@ public class MustahiqDetailFragment extends Fragment implements ManageMustahiqFr
                         .colorRes(R.color.white)
                         .actionBarSize());
 
-        // Download mustahiq details if new instance, else restore from saved instance
+        // Download calon_mustahiq details if new instance, else restore from saved instance
         if (savedInstanceState == null || !(savedInstanceState.containsKey(Zakat.MUSTAHIQ_ID)
                 && savedInstanceState.containsKey(Zakat.MUSTAHIQ_OBJECT))) {
             id = getArguments().getString(Zakat.MUSTAHIQ_ID);
@@ -199,15 +191,14 @@ public class MustahiqDetailFragment extends Fragment implements ManageMustahiqFr
         movieHolder.setVisibility(View.VISIBLE);
         fabAction.setVisibility(View.VISIBLE);
 
-        toolbar.setTitle(mustahiq.nama_mustahiq);
+        toolbar.setTitle(mustahiq.nama_calon_mustahiq);
         toolbarTextHolder.setVisibility(View.GONE);
 
-        imageLoader.loadImage(fotoProfil, mustahiq.nama_mustahiq, mustahiq.nama_mustahiq);
-        namaMustahiq.setText("Nama : " + mustahiq.nama_mustahiq);
-        alamatMustahiq.setText("Alamat : " + (TextUtils.isNullOrEmpty(mustahiq.alamat_mustahiq) ? "-" : mustahiq.alamat_mustahiq));
-        noIdentitas.setText("No Identitas : " + (TextUtils.isNullOrEmpty(mustahiq.no_identitas_mustahiq) ? "-" : mustahiq.no_identitas_mustahiq));
-        noTelpMustahiq.setText("No Telp : " + (TextUtils.isNullOrEmpty(mustahiq.no_telp_mustahiq) ? "-" : mustahiq.no_telp_mustahiq));
-        validasiMustahiq.setText(Html.fromHtml("Status Validasi : " + (mustahiq.validasi_mustahiq.equalsIgnoreCase("ya") ? "<font color='#002800'>Valid</font>" : "<font color='red'>Belum/Tidak Valid</font>")));
+        imageLoader.loadImage(fotoProfil, mustahiq.nama_calon_mustahiq, mustahiq.nama_calon_mustahiq);
+        namaCalonMustahiq.setText("Nama : " + mustahiq.nama_calon_mustahiq);
+        alamatCalonMustahiq.setText("Alamat : " + (TextUtils.isNullOrEmpty(mustahiq.alamat_calon_mustahiq) ? "-" : mustahiq.alamat_calon_mustahiq));
+        noIdentitasCalonMustahiq.setText("No Identitas : " + (TextUtils.isNullOrEmpty(mustahiq.no_identitas_calon_mustahiq) ? "-" : mustahiq.no_identitas_calon_mustahiq));
+        noTelpCalonMustahiq.setText("No Telp : " + (TextUtils.isNullOrEmpty(mustahiq.no_telp_calon_mustahiq) ? "-" : mustahiq.no_telp_calon_mustahiq));
         statusMustahiq.setText(Html.fromHtml("Status Aktif : " + (mustahiq.status_mustahiq.equalsIgnoreCase("aktif") ? "<font color='#002800'>Aktif</font>" : "<font color='red'>Tidak Aktif</font>")));
         namaAmilZakat.setText("Nama Amil Zakat : " + mustahiq.nama_amil_zakat);
         waktuTerakhirDonasi.setText("Waktu Terakhir Menerima Donasi : " + (TextUtils.isNullOrEmpty(mustahiq.waktu_terakhir_donasi) ? "-" : mustahiq.waktu_terakhir_donasi));
@@ -338,19 +329,19 @@ public class MustahiqDetailFragment extends Fragment implements ManageMustahiqFr
                 String isSuccess = jsonObject.getString(Zakat.isSuccess);
                 String message = jsonObject.getString(Zakat.message);
 
-                JSONObject jsDetail = new JSONObject(jsonObject.getString(Zakat.mustahiq));
-                String id_mustahiq = jsDetail.getString(Zakat.id_mustahiq);
-                String nama_mustahiq = jsDetail.getString(Zakat.nama_mustahiq);
-                String alamat_mustahiq = jsDetail.getString(Zakat.alamat_mustahiq);
-                String no_identitas_mustahiq = jsDetail.getString(Zakat.no_identitas_mustahiq);
-                String no_telp_mustahiq = jsDetail.getString(Zakat.no_telp_mustahiq);
-                String validasi_mustahiq = jsDetail.getString(Zakat.validasi_mustahiq);
-                String status_mustahiq = jsDetail.getString(Zakat.status_mustahiq);
-                String id_amil_zakat = jsDetail.getString(Zakat.id_amil_zakat);
-                String nama_amil_zakat = jsDetail.getString(Zakat.nama_amil_zakat);
-                String waktu_terakhir_donasi = jsDetail.getString(Zakat.waktu_terakhir_donasi);
+                JSONObject obj = new JSONObject(jsonObject.getString(Zakat.mustahiq));
+                String id_mustahiq = obj.getString(Zakat.id_mustahiq);
+                String id_calon_mustahiq = obj.getString(Zakat.id_calon_mustahiq);
+                String nama_calon_mustahiq = obj.getString(Zakat.nama_calon_mustahiq);
+                String alamat_calon_mustahiq = obj.getString(Zakat.alamat_calon_mustahiq);
+                String no_identitas_calon_mustahiq = obj.getString(Zakat.no_identitas_calon_mustahiq);
+                String no_telp_calon_mustahiq = obj.getString(Zakat.no_telp_calon_mustahiq);
+                String status_mustahiq = obj.getString(Zakat.status_mustahiq);
+                String id_amil_zakat = obj.getString(Zakat.id_amil_zakat);
+                String nama_amil_zakat = obj.getString(Zakat.nama_amil_zakat);
+                String waktu_terakhir_donasi = obj.getString(Zakat.waktu_terakhir_donasi);
 
-                mustahiq = new Mustahiq(id_mustahiq, nama_mustahiq, alamat_mustahiq, no_identitas_mustahiq, no_telp_mustahiq, validasi_mustahiq, status_mustahiq, id_amil_zakat, nama_amil_zakat,waktu_terakhir_donasi);
+                mustahiq = new Mustahiq(id_mustahiq, id_calon_mustahiq, nama_calon_mustahiq, alamat_calon_mustahiq, no_identitas_calon_mustahiq, no_telp_calon_mustahiq, status_mustahiq, id_amil_zakat, nama_amil_zakat, waktu_terakhir_donasi);
 
                 if (Boolean.parseBoolean(isSuccess))
                     onDownloadSuccessful();

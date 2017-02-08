@@ -7,6 +7,7 @@
     android:background="@color/text_secondary"
     android:orientation="vertical"
     android:padding="@dimen/dist_large">
+
     <agency.tango.android.avatarview.views.AvatarView
         android:id="@+id/foto_profil"
         android:layout_width="@dimen/foto_profil_detail_size"
@@ -15,8 +16,7 @@
         android:layout_marginBottom="10dp"
         app:av_border_color="@android:color/white"
         app:av_border_width="4dp"
-        app:av_text_size_percentage="35"
-        />
+        app:av_text_size_percentage="35" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -42,6 +42,7 @@
             android:textColor="@color/text_primary"
             android:textSize="@dimen/text_large"
             tools:text="alamat_calon_mustahiq" />
+
         <com.ad.zakat.widget.RobotoLightTextView
             android:id="@+id/no_identitas_calon_mustahiq"
             android:layout_width="wrap_content"
@@ -51,6 +52,7 @@
             android:textColor="@color/text_primary"
             android:textSize="@dimen/text_large"
             tools:text="no_identitas_calon_mustahiq" />
+
         <com.ad.zakat.widget.RobotoLightTextView
             android:id="@+id/no_telp_calon_mustahiq"
             android:layout_width="wrap_content"
@@ -60,33 +62,16 @@
             android:textColor="@color/text_primary"
             android:textSize="@dimen/text_large"
             tools:text="no_telp_calon_mustahiq" />
+
         <com.ad.zakat.widget.RobotoLightTextView
-            android:id="@+id/nama_amil_zakat"
+            android:id="@+id/status_calon_mustahiq"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/text_primary"
             android:textSize="@dimen/text_large"
-            tools:text="nama_amil_zakat" />
-        <com.ad.zakat.widget.RobotoLightTextView
-            android:id="@+id/status_mustahiq"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_large"
-            tools:text="status_mustahiq"/>
-        <com.ad.zakat.widget.RobotoLightTextView
-            android:id="@+id/waktu_terakhir_donasi"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_large"
-            tools:text="waktu_terakhir_donasi" />
+            tools:text="status_calon_mustahiq" />
     </LinearLayout>
 
 </LinearLayout>

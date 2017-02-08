@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -17,21 +18,24 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.ad.zakat.R;
 import com.ad.zakat.Zakat;
 import com.ad.zakat.adapter.SpinnerAmilZakatAdapter;
 import com.ad.zakat.model.AmilZakat;
+import com.ad.zakat.model.CalonMustahiq;
 import com.ad.zakat.model.Mustahiq;
 import com.ad.zakat.utils.ApiHelper;
 import com.ad.zakat.utils.CustomVolley;
 import com.ad.zakat.utils.Menus;
 import com.ad.zakat.utils.SnackBar;
-import com.ad.zakat.utils.Utils;
-import com.ad.zakat.widget.RobotoRegularEditText;
+import com.ad.zakat.widget.RobotoRegularTextView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.joanzapata.iconify.IconDrawable;
@@ -43,80 +47,88 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import agency.tango.android.avatarview.loader.PicassoLoader;
+import agency.tango.android.avatarview.views.AvatarView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class ManageMustahiqFragment extends DialogFragment implements CustomVolley.OnCallbackResponse {
+public class ManageMustahiqFragment extends DialogFragment implements CustomVolley.OnCallbackResponse, DialogPickCalonMustahiqFragment.PickCalonMustahiqListener {
     private static final String TAG_ADD = "TAG_ADD";
     private static final String TAG_EDIT = "TAG_EDIT";
     private static final String TAG_DELETE = "TAG_DELETE";
     String title;
+
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    @BindView(R.id.nama_mustahiq)
-    RobotoRegularEditText namaMustahiq;
-    @BindView(R.id.alamat_mustahiq)
-    RobotoRegularEditText alamatMustahiq;
-    @BindView(R.id.no_identitas_mustahiq)
-    RobotoRegularEditText noIdentitasMustahiq;
-    @BindView(R.id.no_telp_mustahiq)
-    RobotoRegularEditText noTelpMustahiq;
+    @BindView(R.id.calon_mustahiq)
+    LinearLayout calonMustahiq;
+    @BindView(R.id.btn_pilih_calon_mustahiq)
+    Button btnPilihCalonMustahiq;
+    @BindView(R.id.alamat_calon_mustahiq)
+    RobotoRegularTextView alamatCalonMustahiq;
+    @BindView(R.id.no_identitas_calon_mustahiq)
+    RobotoRegularTextView noIdentitasCalonMustahiq;
+    @BindView(R.id.no_telp_calon_mustahiq)
+    RobotoRegularTextView noTelpCalonMustahiq;
     @BindView(R.id.id_amil_zakat)
     Spinner idAmilZakat;
-    @BindView(R.id.validasi_mustahiq)
-    RadioGroup validasiMustahiq;
-    @BindView(R.id.status_mustahiq)
-    RadioGroup statusMustahiq;
-    @BindView(R.id.coordinatorLayout)
-    CoordinatorLayout coordinatorLayout;
-    @BindView(R.id.tidak)
-    RadioButton tidak;
-    @BindView(R.id.ya)
-    RadioButton ya;
     @BindView(R.id.aktif)
     RadioButton aktif;
     @BindView(R.id.tidak_aktif)
     RadioButton tidakAktif;
-
+    @BindView(R.id.status_mustahiq)
+    RadioGroup statusMustahiq;
+    @BindView(R.id.coordinatorLayout)
+    CoordinatorLayout coordinatorLayout;
     private SnackBar snackbar;
     private CustomVolley customVolley;
     private RequestQueue queue;
     private ProgressDialog dialogProgress;
     private Unbinder butterKnife;
-
-    private String val_id_mustahiq;
-    private String val_nama_mustahiq = "";
-    private String val_alamat_mustahiq = "";
-    private String val_no_identitas_mustahiq = "";
-    private String val_no_telp_mustahiq = "";
-    private String val_validasi_mustahiq = "";
+    private String val_id_mustahiq = "";
+    private String val_id_calon_mustahiq = "";
+    private String val_nama_calon_mustahiq = "";
+    private String val_alamat_calon_mustahiq = "";
+    private String val_no_identitas_calon_mustahiq = "";
+    private String val_no_telp_calon_mustahiq = "";
     private String val_status_mustahiq = "";
     private String val_id_amil_zakat = "";
-
-
     private Mustahiq mustahiq;
     private Dialog alertDialog;
     private AddEditMustahiqListener callback;
     private ArrayList<AmilZakat> amilZakatList = new ArrayList<>();
     private SpinnerAmilZakatAdapter adapter;
+    private String action;
+
+    public ManageMustahiqFragment() {
+
+    }
+
+    @OnClick(R.id.btn_pilih_calon_mustahiq)
+    void Pick() {
+
+        FragmentManager fragmentManager = getChildFragmentManager();
+        DialogPickCalonMustahiqFragment pickCalonMustahiqFragment = new DialogPickCalonMustahiqFragment();
+        pickCalonMustahiqFragment.setTargetFragment(this, 0);
+        pickCalonMustahiqFragment.setCancelable(false);
+        pickCalonMustahiqFragment.show(fragmentManager, "Pick Calon Mustahiq");
+    }
 
     void Action(int id) {
-        Utils.HideKeyboard(getActivity(), namaMustahiq);
-        Utils.HideKeyboard(getActivity(), alamatMustahiq);
-        Utils.HideKeyboard(getActivity(), noIdentitasMustahiq);
-        Utils.HideKeyboard(getActivity(), noTelpMustahiq);
+
         switch (id) {
 
             case Menus.SEND:
                 getData();
 
-                if (val_nama_mustahiq.length() == 0
-                        || val_alamat_mustahiq.length() == 0
-                        || val_no_identitas_mustahiq.length() == 0
-                        || val_no_telp_mustahiq.length() == 0
+                if (val_id_calon_mustahiq.length() == 0
+                        || val_nama_calon_mustahiq.length() == 0
+                        || val_alamat_calon_mustahiq.length() == 0
+                        || val_no_identitas_calon_mustahiq.length() == 0
+                        || val_no_telp_calon_mustahiq.length() == 0
                         || val_id_amil_zakat.length() == 0
-                        || val_validasi_mustahiq.length() == 0
                         || val_status_mustahiq.length() == 0) {
                     snackbar.show("Harap isi semua form...");
                     return;
@@ -124,16 +136,8 @@ public class ManageMustahiqFragment extends DialogFragment implements CustomVoll
 
                 Map<String, String> jsonParams = new HashMap<>();
 
-                jsonParams.put(Zakat.nama_mustahiq,
-                        val_nama_mustahiq);
-                jsonParams.put(Zakat.alamat_mustahiq,
-                        val_alamat_mustahiq);
-                jsonParams.put(Zakat.no_identitas_mustahiq,
-                        val_no_identitas_mustahiq);
-                jsonParams.put(Zakat.no_telp_mustahiq,
-                        val_no_telp_mustahiq);
-                jsonParams.put(Zakat.validasi_mustahiq,
-                        val_validasi_mustahiq);
+                jsonParams.put(Zakat.id_calon_mustahiq,
+                        val_id_calon_mustahiq);
                 jsonParams.put(Zakat.status_mustahiq,
                         val_status_mustahiq);
                 jsonParams.put(Zakat.id_amil_zakat,
@@ -146,7 +150,6 @@ public class ManageMustahiqFragment extends DialogFragment implements CustomVoll
                     TAG = TAG_EDIT;
                     jsonParams.put(Zakat.id_mustahiq,
                             val_id_mustahiq);
-
                 }
 
                 queue = customVolley.Rest(Request.Method.POST, ApiHelper.getMustahiqAddEditLink(getActivity()), jsonParams, TAG);
@@ -160,17 +163,6 @@ public class ManageMustahiqFragment extends DialogFragment implements CustomVoll
     }
 
     private void getData() {
-
-        val_nama_mustahiq = namaMustahiq.getText().toString().trim();
-        val_alamat_mustahiq = alamatMustahiq.getText().toString().trim();
-        val_no_identitas_mustahiq = noIdentitasMustahiq.getText().toString().trim();
-        val_no_telp_mustahiq = noTelpMustahiq.getText().toString().trim();
-
-        if (validasiMustahiq.getCheckedRadioButtonId() == R.id.tidak)
-            val_validasi_mustahiq = "Tidak";
-        else
-            val_validasi_mustahiq = "Ya";
-
         if (statusMustahiq.getCheckedRadioButtonId() == R.id.aktif)
             val_status_mustahiq = "Aktif";
         else
@@ -204,9 +196,6 @@ public class ManageMustahiqFragment extends DialogFragment implements CustomVoll
         alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }
-
-
-    private String action;
 
     @Override
     public void onDestroyView() {
@@ -242,17 +231,17 @@ public class ManageMustahiqFragment extends DialogFragment implements CustomVoll
                 if (!TAG.equals(TAG_DELETE)) {
                     JSONObject obj = new JSONObject(json.getString(Zakat.mustahiq));
                     String id_mustahiq = obj.getString(Zakat.id_mustahiq);
-                    String nama_mustahiq = obj.getString(Zakat.nama_mustahiq);
-                    String alamat_mustahiq = obj.getString(Zakat.alamat_mustahiq);
-                    String no_identitas_mustahiq = obj.getString(Zakat.no_identitas_mustahiq);
-                    String no_telp_mustahiq = obj.getString(Zakat.no_telp_mustahiq);
-                    String validasi_mustahiq = obj.getString(Zakat.validasi_mustahiq);
+                    String id_calon_mustahiq = obj.getString(Zakat.id_calon_mustahiq);
+                    String nama_calon_mustahiq = obj.getString(Zakat.nama_calon_mustahiq);
+                    String alamat_calon_mustahiq = obj.getString(Zakat.alamat_calon_mustahiq);
+                    String no_identitas_calon_mustahiq = obj.getString(Zakat.no_identitas_calon_mustahiq);
+                    String no_telp_calon_mustahiq = obj.getString(Zakat.no_telp_calon_mustahiq);
                     String status_mustahiq = obj.getString(Zakat.status_mustahiq);
                     String id_amil_zakat = obj.getString(Zakat.id_amil_zakat);
                     String nama_amil_zakat = obj.getString(Zakat.nama_amil_zakat);
                     String waktu_terakhir_donasi = obj.getString(Zakat.waktu_terakhir_donasi);
 
-                    mustahiq = new Mustahiq(id_mustahiq, nama_mustahiq, alamat_mustahiq, no_identitas_mustahiq, no_telp_mustahiq, validasi_mustahiq, status_mustahiq, id_amil_zakat, nama_amil_zakat, waktu_terakhir_donasi);
+                    mustahiq = new Mustahiq(id_mustahiq, id_calon_mustahiq, nama_calon_mustahiq, alamat_calon_mustahiq, no_identitas_calon_mustahiq, no_telp_calon_mustahiq, status_mustahiq, id_amil_zakat, nama_amil_zakat, waktu_terakhir_donasi);
                     if (TAG.equals(TAG_ADD)) {
                         callback.onFinishAddMustahiq(mustahiq);
                     } else if (TAG.equals(TAG_EDIT)) {
@@ -283,13 +272,31 @@ public class ManageMustahiqFragment extends DialogFragment implements CustomVoll
         amilZakatList.add(0, amilZakat);
     }
 
+    @Override
+    public void onFinishPickCalonMustahiqL(CalonMustahiq calon_Mustahiq) {
 
-    public interface AddEditMustahiqListener {
-        void onFinishEditMustahiq(Mustahiq mustahiq);
+        val_id_calon_mustahiq = calon_Mustahiq.id_calon_mustahiq;
+        val_nama_calon_mustahiq = calon_Mustahiq.nama_calon_mustahiq;
+        val_alamat_calon_mustahiq = calon_Mustahiq.alamat_calon_mustahiq;
+        val_no_identitas_calon_mustahiq = calon_Mustahiq.no_identitas_calon_mustahiq;
+        val_no_telp_calon_mustahiq = calon_Mustahiq.no_telp_calon_mustahiq;
 
-        void onFinishAddMustahiq(Mustahiq mustahiq);
+        LayoutInflater inflaterView = LayoutInflater.from(getActivity());
+        LinearLayout IF = (LinearLayout) inflaterView.inflate(R.layout.item_add_mustahiq, null, false);
+        calonMustahiq.removeAllViews();
+        calonMustahiq.addView(IF);
 
-        void onFinishDeleteMustahiq(Mustahiq mustahiq);
+        final PicassoLoader imageLoader
+                = new PicassoLoader();
+        final AvatarView fotoProfil = (AvatarView) IF.findViewById(R.id.foto_profil);
+        final TextView namaCalonMustahiq = (TextView) IF.findViewById(R.id.nama_calon_mustahiq);
+        imageLoader.loadImage(fotoProfil, val_nama_calon_mustahiq, val_nama_calon_mustahiq);
+        namaCalonMustahiq.setText(val_nama_calon_mustahiq);
+
+        alamatCalonMustahiq.setText(val_alamat_calon_mustahiq);
+        noIdentitasCalonMustahiq.setText(val_no_identitas_calon_mustahiq);
+        noTelpCalonMustahiq.setText(val_no_telp_calon_mustahiq);
+
     }
 
     @Override
@@ -303,10 +310,6 @@ public class ManageMustahiqFragment extends DialogFragment implements CustomVoll
         }
     }
 
-    public ManageMustahiqFragment() {
-
-    }
-
     public void setDialogTitle(String title) {
         this.title = title;
     }
@@ -318,7 +321,6 @@ public class ManageMustahiqFragment extends DialogFragment implements CustomVoll
     public void setData(Mustahiq mustahiq) {
         this.mustahiq = mustahiq;
     }
-
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
 
@@ -360,7 +362,7 @@ public class ManageMustahiqFragment extends DialogFragment implements CustomVoll
                         .colorRes(R.color.white)
                         .actionBarSize());
 
-        // Spinner adapter
+        // Spinner adapterMustahiq
         adapter = new SpinnerAmilZakatAdapter(getActivity(),
                 android.R.layout.simple_spinner_item,
                 amilZakatList);
@@ -389,23 +391,30 @@ public class ManageMustahiqFragment extends DialogFragment implements CustomVoll
 
 
             val_id_mustahiq = mustahiq.id_mustahiq;
-            val_nama_mustahiq = mustahiq.nama_mustahiq;
-            val_alamat_mustahiq = mustahiq.alamat_mustahiq;
-            val_no_identitas_mustahiq = mustahiq.no_identitas_mustahiq;
-            val_no_telp_mustahiq = mustahiq.no_telp_mustahiq;
-            val_validasi_mustahiq = mustahiq.validasi_mustahiq;
+            val_id_calon_mustahiq = mustahiq.id_calon_mustahiq;
+            val_nama_calon_mustahiq = mustahiq.nama_calon_mustahiq;
+            val_alamat_calon_mustahiq = mustahiq.alamat_calon_mustahiq;
+            val_no_identitas_calon_mustahiq = mustahiq.no_identitas_calon_mustahiq;
+            val_no_telp_calon_mustahiq = mustahiq.no_telp_calon_mustahiq;
             val_status_mustahiq = mustahiq.status_mustahiq;
             val_id_amil_zakat = mustahiq.id_amil_zakat;
 
-            namaMustahiq.setText(val_nama_mustahiq);
-            alamatMustahiq.setText(val_alamat_mustahiq);
-            noIdentitasMustahiq.setText(val_no_identitas_mustahiq);
-            noTelpMustahiq.setText(val_no_telp_mustahiq);
+            LayoutInflater inflaterView = LayoutInflater.from(getActivity());
+            LinearLayout IF = (LinearLayout) inflaterView.inflate(R.layout.item_add_mustahiq, null, false);
+            calonMustahiq.addView(IF);
 
-            if (val_validasi_mustahiq.equalsIgnoreCase("Tidak"))
-                tidak.setChecked(true);
-            else
-                ya.setChecked(true);
+            final PicassoLoader imageLoader
+                    = new PicassoLoader();
+            final AvatarView fotoProfil = (AvatarView) IF.findViewById(R.id.foto_profil);
+            final TextView namaCalonMustahiq = (TextView) IF.findViewById(R.id.nama_calon_mustahiq);
+            imageLoader.loadImage(fotoProfil, val_nama_calon_mustahiq, val_nama_calon_mustahiq);
+            namaCalonMustahiq.setText(val_nama_calon_mustahiq);
+
+            alamatCalonMustahiq.setText(val_alamat_calon_mustahiq);
+            noIdentitasCalonMustahiq.setText(val_no_identitas_calon_mustahiq);
+            noTelpCalonMustahiq.setText(val_no_telp_calon_mustahiq);
+
+            btnPilihCalonMustahiq.setVisibility(View.GONE);
 
             if (val_status_mustahiq.equalsIgnoreCase("Aktif"))
                 aktif.setChecked(true);
@@ -431,7 +440,6 @@ public class ManageMustahiqFragment extends DialogFragment implements CustomVoll
         return view;
     }
 
-
     private void progress(boolean status) {
         if (status) {
             dialogProgress = ProgressDialog.show(getActivity(), "Submit",
@@ -441,6 +449,15 @@ public class ManageMustahiqFragment extends DialogFragment implements CustomVoll
             if (dialogProgress.isShowing())
                 dialogProgress.dismiss();
         }
+    }
+
+
+    public interface AddEditMustahiqListener {
+        void onFinishEditMustahiq(Mustahiq mustahiq);
+
+        void onFinishAddMustahiq(Mustahiq mustahiq);
+
+        void onFinishDeleteMustahiq(Mustahiq mustahiq);
     }
 
 

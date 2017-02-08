@@ -2,34 +2,32 @@ package com.ad.zakat.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ad.zakat.R;
 import com.ad.zakat.Zakat;
 import com.ad.zakat.activity.DrawerActivity;
-import com.ad.zakat.activity.MustahiqDetailActivity;
-import com.ad.zakat.adapter.MustahiqAdapter;
-import com.ad.zakat.model.AmilZakat;
-import com.ad.zakat.model.Mustahiq;
+import com.ad.zakat.adapter.CalonMustahiqAdapter;
+import com.ad.zakat.model.CalonMustahiq;
 import com.ad.zakat.utils.ApiHelper;
 import com.ad.zakat.utils.CustomVolley;
 import com.android.volley.Request;
@@ -55,21 +53,22 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 
 
-public class MustahiqListFragment extends Fragment implements MustahiqAdapter.OnMustahiqItemClickListener,
-        SwipeRefreshLayout.OnRefreshListener, CustomVolley.OnCallbackResponse, ManageMustahiqFragment.AddEditMustahiqListener {
+public class DialogPickCalonMustahiqFragment extends DialogFragment implements CalonMustahiqAdapter.OnCalonMustahiqItemClickListener,
+        SwipeRefreshLayout.OnRefreshListener, CustomVolley.OnCallbackResponse {
 
     private static final String TAG_MORE = "TAG_MORE";
     private static final String TAG_AWAL = "TAG_AWAL";
     private static final String TAG_NEW = "TAG_NEW";
     private static final String TAG_DELETE = "TAG_DELETE";
-    private static final String TAG_AMIL_ZAKAT = "TAG_AMIL_ZAKAT";
 
 
     private static final String TAG_ATAS = "atas";
     private static final String TAG_BAWAH = "bawah";
-    public MustahiqAdapter adapterMustahiq;
+    public CalonMustahiqAdapter adapterCalonMustahiq;
     @BindBool(R.bool.is_tablet)
     boolean isTablet;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
     @BindView(R.id.recyclerview)
     RecyclerView recyclerView;
     @BindView(R.id.swipe_container)
@@ -80,10 +79,6 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
     IconButton noData;
     @BindView(R.id.fab_scroll_up)
     FloatingActionButton fabScrollUp;
-    @BindView(R.id.fab_action)
-    com.github.clans.fab.FloatingActionButton fabAction;
-    @BindView(R.id.coordinatorLayout)
-    CoordinatorLayout coordinatorLayout;
     //error
     @BindView(R.id.error_message)
     View errorMessage;
@@ -95,8 +90,9 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
     TextView tryAgain;
     @BindView(R.id.parent_search)
     CardView parentSearch;
-    private ArrayList<Mustahiq> dataMustahiqs = new ArrayList<>();
+    private ArrayList<CalonMustahiq> dataCalonMustahiqs = new ArrayList<>();
     private GridLayoutManager mLayoutManager;
+    private PickCalonMustahiqListener callback;
     private Integer position_delete;
     private ProgressDialog dialogProgress;
     private FragmentActivity activity;
@@ -110,33 +106,38 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
     private RequestQueue queue;
     private int mPreviousVisibleItem;
 
-    public MustahiqListFragment() {
+    public DialogPickCalonMustahiqFragment() {
     }
+    //  private String session_key;
 
     /**
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static MustahiqListFragment newInstance() {
-        MustahiqListFragment fragment = new MustahiqListFragment();
+    public static DialogPickCalonMustahiqFragment newInstance() {
+        DialogPickCalonMustahiqFragment fragment = new DialogPickCalonMustahiqFragment();
         return fragment;
 
     }
-    //  private String session_key;
 
     void ScrollUp() {
         recyclerView.smoothScrollToPosition(0);
     }
 
-    @OnClick(R.id.fab_action)
-    void AddMustahiq() {
-
-        queue = customVolley.Rest(Request.Method.GET, ApiHelper.getAmilZakatLink(getActivity()), null, TAG_AMIL_ZAKAT);
-    }
-
     @OnClick(R.id.try_again)
     void TryAgain() {
         RefreshData();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        try {
+            callback = (PickCalonMustahiqListener) getTargetFragment();
+        } catch (Exception e) {
+            throw new ClassCastException("Calling Fragment must implement PickCalonMustahiqListener");
+        }
     }
 
     @Override
@@ -151,10 +152,22 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_list, container, false);
+        View rootView = inflater.inflate(R.layout.content_pick_calon_mustahiq, container, false);
         butterknife = ButterKnife.bind(this, rootView);
         customVolley = new CustomVolley(activity);
         customVolley.setOnCallbackResponse(this);
+
+        toolbar.setTitle("Pick Calon Mustahiq ");
+        toolbar.setNavigationIcon(
+                new IconDrawable(getActivity(), MaterialIcons.md_close)
+                        .colorRes(R.color.white)
+                        .actionBarSize());
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
 
         // Configure the swipe refresh layout
         swipeContainer.setOnRefreshListener(this);
@@ -166,9 +179,9 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
 
 
         parentSearch.setVisibility(View.GONE);
-        //inisial adapterMustahiq
-        adapterMustahiq = new MustahiqAdapter(activity, dataMustahiqs, isTablet);
-        adapterMustahiq.setOnMustahiqItemClickListener(this);
+        //inisial adapterCalonMustahiq
+        adapterCalonMustahiq = new CalonMustahiqAdapter(activity, dataCalonMustahiqs, isTablet);
+        adapterCalonMustahiq.setOnCalonMustahiqItemClickListener(this);
 
         //recyclerView
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -187,16 +200,16 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
         // set layout manager
         recyclerView.setLayoutManager(mLayoutManager);
 
-        // set adapterMustahiq
-        recyclerView.setAdapter(adapterMustahiq);
+        // set adapterCalonMustahiq
+        recyclerView.setAdapter(adapterCalonMustahiq);
 
-        //handle ringkas dataMustahiqs
+        //handle ringkas dataCalonMustahiqs
         Mugen.with(recyclerView, new MugenCallbacks() {
             @Override
             public void onLoadMore() {
                 if (isFinishLoadingAwalData
                         && !isFinishMoreData
-                        && adapterMustahiq.getItemCount() > 0) {
+                        && adapterCalonMustahiq.getItemCount() > 0) {
                     getDataFromServer(TAG_MORE);
                 }
             }
@@ -218,38 +231,26 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisibleItem = mLayoutManager.findFirstVisibleItemPosition();
-                if (firstVisibleItem > mPreviousVisibleItem) {
-                    fabAction.hide(true);
-                } else if (firstVisibleItem < mPreviousVisibleItem) {
-                    fabAction.show(true);
-                }
                 mPreviousVisibleItem = firstVisibleItem;
             }
         });
 
 
-        //setup fab
-        fabAction.setImageDrawable(
-                new IconDrawable(getActivity(), MaterialIcons.md_add)
-                        .colorRes(R.color.white)
-                        .actionBarSize());
-
         fabScrollUp.setImageDrawable(
                 new IconDrawable(getActivity(), MaterialCommunityIcons.mdi_arrow_up)
                         .colorRes(R.color.primary));
 
-        fabAction.setVisibility(View.VISIBLE);
 
-        noData.setText(Html.fromHtml("<center><h1>{mdi-calendar}</h1></br> Tidak ada mustahiq ...</center>"));
+        noData.setText(Html.fromHtml("<center><h1>{mdi-calendar}</h1></br> Tidak ada calon mustahiq ...</center>"));
         showNoData(false);
 
           /* =========================================================================================
-        ==================== Get Data List (Mustahiq) ================================================
+        ==================== Get Data List (CalonMustahiq) ================================================
         ============================================================================================*/
         if (savedInstanceState == null || !savedInstanceState.containsKey(Zakat.CALON_MUSTAHIQ_ID)) {
             getDataFromServer(TAG_AWAL);
         } else {
-            dataMustahiqs = savedInstanceState.getParcelableArrayList(Zakat.CALON_MUSTAHIQ_ID);
+            dataCalonMustahiqs = savedInstanceState.getParcelableArrayList(Zakat.CALON_MUSTAHIQ_ID);
             page = savedInstanceState.getInt(Zakat.PAGE);
             isLoadingMoreData = savedInstanceState.getBoolean(Zakat.IS_LOADING_MORE_DATA);
             isFinishLoadingAwalData = savedInstanceState.getBoolean(Zakat.IS_FINISH_LOADING_AWAL_DATA);
@@ -257,29 +258,33 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
             if (!isFinishLoadingAwalData) {
                 getDataFromServer(TAG_AWAL);
             } else if (isLoadingMoreData) {
-                adapterMustahiq.notifyDataSetChanged();
+                adapterCalonMustahiq.notifyDataSetChanged();
                 checkData();
                 getDataFromServer(TAG_MORE);
             } else {
-                adapterMustahiq.notifyDataSetChanged();
+                adapterCalonMustahiq.notifyDataSetChanged();
                 checkData();
             }
         }
         /* =========================================================================================
-        ==================== End Get Data List (Mustahiq) ============================================
+        ==================== End Get Data List (CalonMustahiq) ============================================
         ============================================================================================*/
 
+        getDialog().getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         return rootView;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (mLayoutManager != null && adapterMustahiq != null) {
+        if (mLayoutManager != null && adapterCalonMustahiq != null) {
             outState.putBoolean(Zakat.IS_FINISH_LOADING_AWAL_DATA, isFinishLoadingAwalData);
             outState.putBoolean(Zakat.IS_LOADING_MORE_DATA, isLoadingMoreData);
             outState.putInt(Zakat.PAGE, page);
-            outState.putParcelableArrayList(Zakat.data, dataMustahiqs);
+            outState.putParcelableArrayList(Zakat.data, dataCalonMustahiqs);
         }
     }
 
@@ -318,48 +323,47 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
     }
 
     public String getUrlToDownload(int page) {
-        return ApiHelper.getMustahiqLink(getActivity(), page);
+        return ApiHelper.getCalonMustahiqLink(getActivity(), page);
     }
-
 
     protected void DrawDataAllData(String position, String tag, String response) {
 
 
         try {
             if (isRefresh) {
-                adapterMustahiq.delete_all();
+                adapterCalonMustahiq.delete_all();
             }
 
             JSONObject json = new JSONObject(response);
             Boolean isSuccess = Boolean.parseBoolean(json.getString(Zakat.isSuccess));
             String message = json.getString(Zakat.message);
             if (isSuccess) {
-                JSONArray items_obj = json.getJSONArray(Zakat.mustahiq);
+                JSONArray items_obj = json.getJSONArray(Zakat.calon_mustahiq);
                 int jumlah_list_data = items_obj.length();
                 if (jumlah_list_data > 0) {
                     for (int i = 0; i < jumlah_list_data; i++) {
                         JSONObject obj = items_obj.getJSONObject(i);
                         setDataObject(position, obj);
                     }
-                    adapterMustahiq.notifyDataSetChanged();
+                    adapterCalonMustahiq.notifyDataSetChanged();
                 } else {
                     switch (tag) {
                         case TAG_MORE:
                             isFinishMoreData = true;
-                            //       TastyToast.makeText(activity, "tidak ada dataMustahiqs lama...", TastyToast.LENGTH_LONG, TastyToast.INFO);
+                            //       TastyToast.makeText(activity, "tidak ada dataCalonMustahiqs lama...", TastyToast.LENGTH_LONG, TastyToast.INFO);
                             break;
                         case TAG_AWAL:
-                            //      TastyToast.makeText(activity, "tidak ada dataMustahiqs...", TastyToast.LENGTH_LONG, TastyToast.INFO);
+                            //      TastyToast.makeText(activity, "tidak ada dataCalonMustahiqs...", TastyToast.LENGTH_LONG, TastyToast.INFO);
                             break;
                         case TAG_NEW:
-                            //     TastyToast.makeText(activity, "tidak ada dataMustahiqs baru...", TastyToast.LENGTH_LONG, TastyToast.INFO);
+                            //     TastyToast.makeText(activity, "tidak ada dataCalonMustahiqs baru...", TastyToast.LENGTH_LONG, TastyToast.INFO);
                             break;
                     }
                 }
 
-                if (isTablet && page == 1 && adapterMustahiq.data.size() > 0) {
-                    adapterMustahiq.setSelected(0);
-                    ((DrawerActivity) getActivity()).loadDetailMustahiqFragmentWith(adapterMustahiq.data.get(0).id_mustahiq);
+                if (isTablet && page == 1 && adapterCalonMustahiq.data.size() > 0) {
+                    adapterCalonMustahiq.setSelected(0);
+                    ((DrawerActivity) getActivity()).loadDetailCalonMustahiqFragmentWith(adapterCalonMustahiq.data.get(0).id_calon_mustahiq);
                 }
 
                 page = page + 1;
@@ -371,21 +375,20 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
 
         } catch (JSONException e) {
             e.printStackTrace();
-            TastyToast.makeText(activity, "Parsing dataMustahiqs error ...", TastyToast.LENGTH_LONG, TastyToast.ERROR);
+            TastyToast.makeText(activity, "Parsing dataCalonMustahiqs error ...", TastyToast.LENGTH_LONG, TastyToast.ERROR);
         }
 
 
     }
 
     private void checkData() {
-        if (adapterMustahiq.getItemCount() > 0) {
+        if (adapterCalonMustahiq.getItemCount() > 0) {
 
             showNoData(false);
         } else {
             showNoData(true);
         }
     }
-
 
     private void ResponeDelete(String response) {
         try {
@@ -394,7 +397,7 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
             Boolean isSuccess = Boolean.parseBoolean(json.getString(Zakat.isSuccess));
             String message = json.getString(Zakat.message);
             if (isSuccess) {
-                adapterMustahiq.remove(position_delete);
+                adapterCalonMustahiq.remove(position_delete);
                 checkData();
             } else {
                 TastyToast.makeText(activity, message, TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
@@ -402,72 +405,55 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
 
         } catch (JSONException e) {
             e.printStackTrace();
-            TastyToast.makeText(activity, "Parsing dataMustahiqs error ...", TastyToast.LENGTH_LONG, TastyToast.ERROR);
+            TastyToast.makeText(activity, "Parsing dataCalonMustahiqs error ...", TastyToast.LENGTH_LONG, TastyToast.ERROR);
         }
     }
 
     private void setDataObject(String position, JSONObject obj) throws JSONException {
         //parse object
-        String id_mustahiq = obj.getString(Zakat.id_mustahiq);
         String id_calon_mustahiq = obj.getString(Zakat.id_calon_mustahiq);
         String nama_calon_mustahiq = obj.getString(Zakat.nama_calon_mustahiq);
         String alamat_calon_mustahiq = obj.getString(Zakat.alamat_calon_mustahiq);
         String no_identitas_calon_mustahiq = obj.getString(Zakat.no_identitas_calon_mustahiq);
         String no_telp_calon_mustahiq = obj.getString(Zakat.no_telp_calon_mustahiq);
-        String status_mustahiq = obj.getString(Zakat.status_mustahiq);
-        String id_amil_zakat = obj.getString(Zakat.id_amil_zakat);
-        String nama_amil_zakat = obj.getString(Zakat.nama_amil_zakat);
-        String waktu_terakhir_donasi = obj.getString(Zakat.waktu_terakhir_donasi);
+        String status_calon_mustahiq = obj.getString(Zakat.status_calon_mustahiq);
         //set map object
         AddAndSetMapData(
                 position,
-                id_mustahiq,
                 id_calon_mustahiq,
                 nama_calon_mustahiq,
                 alamat_calon_mustahiq,
                 no_identitas_calon_mustahiq,
                 no_telp_calon_mustahiq,
-                status_mustahiq,
-                id_amil_zakat,
-                nama_amil_zakat,
-                waktu_terakhir_donasi
+                status_calon_mustahiq
         );
 
     }
 
     private void AddAndSetMapData(
             String position,
-            String id_mustahiq,
             String id_calon_mustahiq,
             String nama_calon_mustahiq,
             String alamat_calon_mustahiq,
             String no_identitas_calon_mustahiq,
             String no_telp_calon_mustahiq,
-            String status_mustahiq,
-            String id_amil_zakat,
-            String nama_amil_zakat,
-            String waktu_terakhir_donasi) {
+            String status_calon_mustahiq) {
 
-        Mustahiq mustahiq = new Mustahiq(
-                id_mustahiq,
+        CalonMustahiq calon_mustahiq = new CalonMustahiq(
                 id_calon_mustahiq,
                 nama_calon_mustahiq,
                 alamat_calon_mustahiq,
                 no_identitas_calon_mustahiq,
                 no_telp_calon_mustahiq,
-                status_mustahiq,
-                id_amil_zakat,
-                nama_amil_zakat,
-                waktu_terakhir_donasi);
+                status_calon_mustahiq);
 
 
         if (position.equals(TAG_BAWAH)) {
-            dataMustahiqs.add(mustahiq);
+            dataCalonMustahiqs.add(calon_mustahiq);
         } else {
-            dataMustahiqs.add(0, mustahiq);
+            dataCalonMustahiqs.add(0, calon_mustahiq);
         }
     }
-
 
     @Override
     public void onRefresh() {
@@ -475,7 +461,7 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
     }
 
     public void RefreshData() {
-        // if (adapterMustahiq.getItemCount() > 1) {
+        // if (adapterCalonMustahiq.getItemCount() > 1) {
         isRefresh = true;
         isLoadingMoreData = false;
         isFinishLoadingAwalData = true;
@@ -488,13 +474,9 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
         getDataFromServer(TAG_AWAL);
     }
 
-
     private void startProgress(String TAG) {
         if (TAG.equals(TAG_DELETE)) {
-            TAG = "Delete Mustahiq";
-        }
-        if (TAG.equals(TAG_AMIL_ZAKAT)) {
-            TAG = "Prepare";
+            TAG = "Delete CalonMustahiq";
         }
         dialogProgress = ProgressDialog.show(getActivity(), TAG,
                 "Please wait...", true);
@@ -509,15 +491,13 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
     public void onVolleyStart(String TAG) {
         if (TAG.equals(TAG_DELETE)) {
             startProgress(TAG_DELETE);
-        } else if (TAG.equals(TAG_AMIL_ZAKAT)) {
-            startProgress(TAG_AMIL_ZAKAT);
         } else {
             showProgresMore(false);
             if (TAG.equals(TAG_AWAL)) {
                 ProgresRefresh(true);
                 isFinishLoadingAwalData = false;
                 errorMessage.setVisibility(View.GONE);
-                if (adapterMustahiq.getItemCount() == 0) {
+                if (adapterCalonMustahiq.getItemCount() == 0) {
                     loading.setVisibility(View.VISIBLE);
                 }
 
@@ -535,8 +515,6 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
     public void onVolleyEnd(String TAG) {
         if (TAG.equals(TAG_DELETE)) {
             stopProgress(TAG_DELETE);
-        } else if (TAG.equals(TAG_AMIL_ZAKAT)) {
-            stopProgress(TAG_AMIL_ZAKAT);
         } else {
             ProgresRefresh(false);
             if (TAG.equals(TAG_AWAL)) {
@@ -549,9 +527,6 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
     public void onVolleySuccessResponse(String TAG, String response) {
         if (TAG.equals(TAG_DELETE)) {
             ResponeDelete(response);
-
-        } else if (TAG.equals(TAG_AMIL_ZAKAT)) {
-            ResponeAmilZakat(response);
 
         } else {
 
@@ -573,63 +548,14 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
         }
     }
 
-    private void ResponeAmilZakat(String response) {
-
-        try {
-
-            JSONObject json = new JSONObject(response);
-            Boolean isSuccess = Boolean.parseBoolean(json.getString(Zakat.isSuccess));
-            String message = json.getString(Zakat.message);
-            if (isSuccess) {
-                JSONArray items_obj = json.getJSONArray(Zakat.amil_zakat);
-                int jumlah_list_data = items_obj.length();
-                if (jumlah_list_data > 0) {
-
-                    ArrayList<AmilZakat> dataAmilZakat = new ArrayList<>();
-                    for (int i = 0; i < jumlah_list_data; i++) {
-                        JSONObject obj = items_obj.getJSONObject(i);
-                        String id_amil_zakat = obj.getString(Zakat.id_amil_zakat);
-                        String nama_amil_zakat = obj.getString(Zakat.nama_amil_zakat);
-
-                        dataAmilZakat.add(new AmilZakat(id_amil_zakat, nama_amil_zakat));
-                    }
-
-                    FragmentManager fragmentManager = getChildFragmentManager();
-                    ManageMustahiqFragment manageMustahiq = new ManageMustahiqFragment();
-                    manageMustahiq.setTargetFragment(this, 0);
-                    manageMustahiq.setCancelable(false);
-                    manageMustahiq.setDialogTitle("Mustahiq");
-                    manageMustahiq.setAction("add");
-                    manageMustahiq.setAmilZakat(dataAmilZakat);
-                    manageMustahiq.show(fragmentManager, "Manage Mustahiq");
-
-                } else {
-                    TastyToast.makeText(activity, "tidak ada dataMustahiqs...", TastyToast.LENGTH_LONG, TastyToast.INFO);
-                }
-            } else {
-                TastyToast.makeText(activity, message, TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
-            }
-
-        } catch (JSONException e)
-
-        {
-            e.printStackTrace();
-            TastyToast.makeText(activity, "Parsing dataMustahiqs error ...", TastyToast.LENGTH_LONG, TastyToast.ERROR);
-        }
-
-    }
-
-
     @Override
     public void onVolleyErrorResponse(String TAG, String response) {
         if (TAG.equals(TAG_DELETE)) {
-            TastyToast.makeText(activity, "Error hapus mustahiq...", TastyToast.LENGTH_LONG, TastyToast.ERROR);
-        } else if (TAG.equals(TAG_AMIL_ZAKAT)) {
-            TastyToast.makeText(activity, "Error ..", TastyToast.LENGTH_LONG, TastyToast.ERROR);
+            TastyToast.makeText(activity, "Error hapus calon mustahiq...", TastyToast.LENGTH_LONG, TastyToast.ERROR);
         } else {
             if (TAG.equals(TAG_AWAL)) {
                 isFinishLoadingAwalData = false;
-                if (adapterMustahiq.getItemCount() == 0) {
+                if (adapterCalonMustahiq.getItemCount() == 0) {
                     errorMessage.setVisibility(View.VISIBLE);
                 } else {
                     errorMessage.setVisibility(View.GONE);
@@ -652,7 +578,6 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
             queue.cancelAll(TAG_MORE);
             queue.cancelAll(TAG_NEW);
             queue.cancelAll(TAG_DELETE);
-            queue.cancelAll(TAG_AMIL_ZAKAT);
         }
     }
 
@@ -666,69 +591,10 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
 
     @Override
     public void onRootClick(View v, int position) {
-
-        if (isTablet) {
-            adapterMustahiq.setSelected(position);
-            ((DrawerActivity) getActivity()).loadDetailMustahiqFragmentWith(adapterMustahiq.data.get(position).id_mustahiq);
-        } else {
-            Intent intent = new Intent(activity, MustahiqDetailActivity.class);
-            intent.putExtra(Zakat.MUSTAHIQ_ID, adapterMustahiq.data.get(position).id_mustahiq);
-            startActivity(intent);
-        }
-
+        CalonMustahiq calonMustahiq = adapterCalonMustahiq.data.get(position);
+        callback.onFinishPickCalonMustahiqL(calonMustahiq);
+        dismiss();
     }
-/*
-    public void OpenAtion(View v, final int position) {
-
-        final String id_mustahiq = adapterMustahiq.dataMustahiqs.get(position).id_mustahiq
-
-        PopupMenu popup = new PopupMenu(activity, v, Gravity.RIGHT);
-        popup.getMenuInflater().inflate(R.menu.action_manage, popup.getMenu());
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                int which = item.getItemId();
-                if (which == R.id.action_edit) {
-                    Intent myIntent = new Intent(getActivity(), actionEditActivity.class);
-                    activity.startActivityForResult(myIntent, 1);
-                }
-                if (which == R.id.action_delete) {
-                    new AlertDialog.Builder(getActivity())
-                            .setIcon(
-                                    new IconDrawable(getActivity(), MaterialCommunityIcons.mdi_alert_octagon)
-                                            .colorRes(R.color.primary)
-                                            .actionBarSize())
-                            .setTitle("Hapus Mustahiq")
-                            .setMessage("Apa anda yakin akan menghapus mustahiq ini?")
-                            .setPositiveButton("Ya", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    position_delete = position;
-                                    queue = customVolley.Rest(Request.Method.GET, ApiHelper.getDeleteMustahiqLink(getActivity(), idgambar), null, TAG_DELETE);
-                                }
-                            })
-                            .setNegativeButton("Tidak", null)
-                            .show();
-                }
-                return true;
-            }
-        });
-
-        // Force icons to show
-        try {
-            Field mFieldPopup = popup.getClass().getDeclaredField("mPopup");
-            mFieldPopup.setAccessible(true);
-
-            MenuPopupHelper mPopup = (MenuPopupHelper) mFieldPopup.get(popup);
-            mPopup.setForceShowIcon(true);
-
-        } catch (Exception e) {
-            Log.w("TAG", "error forcing menu icons to show", e);
-            return;
-        }
-
-        popup.show();
-    }*/
-
 
     public int getNumberOfColumns() {
         // Get screen width
@@ -744,23 +610,10 @@ public class MustahiqListFragment extends Fragment implements MustahiqAdapter.On
         return columns > 1 ? columns : 1;
     }
 
-    @Override
-    public void onFinishEditMustahiq(Mustahiq mustahiq) {
 
+    public interface PickCalonMustahiqListener {
+        void onFinishPickCalonMustahiqL(CalonMustahiq calonMustahiq);
     }
 
-    @Override
-    public void onFinishAddMustahiq(Mustahiq mustahiq) {
-        adapterMustahiq.data.add(0, mustahiq);
-        adapterMustahiq.notifyDataSetChanged();
-        if (isTablet) {
-            adapterMustahiq.setSelected(0);
-            ((DrawerActivity) getActivity()).loadDetailMustahiqFragmentWith(adapterMustahiq.data.get(0).id_mustahiq);
-        }
-    }
 
-    @Override
-    public void onFinishDeleteMustahiq(Mustahiq mustahiq) {
-
-    }
 }

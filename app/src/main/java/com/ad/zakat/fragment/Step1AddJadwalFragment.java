@@ -14,14 +14,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import com.ad.zakat.R; import com.ad.zakat.R2;
+import com.ad.zakat.R;
 import com.ad.zakat.activity.ActionDonasiBaruActivity;
 import com.ad.zakat.utils.RupiahTextWatcher;
 import com.ad.zakat.utils.TextUtils;
 import com.ad.zakat.widget.RobotoBoldTextView;
 import com.ad.zakat.widget.RobotoLightTextView;
 import com.ad.zakat.widget.RobotoRegularEditText;
-
 
 import agency.tango.android.avatarview.loader.PicassoLoader;
 import agency.tango.android.avatarview.views.AvatarView;
@@ -32,6 +31,13 @@ import butterknife.Unbinder;
 
 public class Step1AddJadwalFragment extends Fragment {
 
+
+    public String s_nama_muzaki;
+    public String s_alamat_muzaki;
+    public String s_no_identitas_muzaki;
+    public String s_no_telp_muzaki;
+    public String s_jumlah_donasi;
+    public boolean errorForm;
     @BindView(R.id.nama_muzaki)
     RobotoRegularEditText namaMuzaki;
     @BindView(R.id.alamat_muzaki)
@@ -44,20 +50,18 @@ public class Step1AddJadwalFragment extends Fragment {
     RobotoRegularEditText idMustahiq;
     @BindView(R.id.foto_profil)
     AvatarView fotoProfil;
-    @BindView(R.id.nama_mustahiq)
-    RobotoBoldTextView namaMustahiq;
-    @BindView(R.id.alamat_mustahiq)
-    RobotoLightTextView alamatMustahiq;
-    @BindView(R.id.no_identitas)
-    RobotoLightTextView noIdentitas;
-    @BindView(R.id.no_telp_mustahiq)
-    RobotoLightTextView noTelpMustahiq;
-    @BindView(R.id.validasi_mustahiq)
-    RobotoLightTextView validasiMustahiq;
-    @BindView(R.id.status_mustahiq)
-    RobotoLightTextView statusMustahiq;
+    @BindView(R.id.nama_calon_mustahiq)
+    RobotoBoldTextView namaCalonMustahiq;
+    @BindView(R.id.alamat_calon_mustahiq)
+    RobotoLightTextView alamatCalonMustahiq;
+    @BindView(R.id.no_identitas_calon_mustahiq)
+    RobotoLightTextView noIdentitasCalonMustahiq;
+    @BindView(R.id.no_telp_calon_mustahiq)
+    RobotoLightTextView noTelpCalonMustahiq;
     @BindView(R.id.nama_amil_zakat)
     RobotoLightTextView namaAmilZakat;
+    @BindView(R.id.status_mustahiq)
+    RobotoLightTextView statusMustahiq;
     @BindView(R.id.waktu_terakhir_donasi)
     RobotoLightTextView waktuTerakhirDonasi;
     @BindView(R.id.jumlah_donasi)
@@ -66,19 +70,8 @@ public class Step1AddJadwalFragment extends Fragment {
     Button btnStep2;
     @BindView(R.id.parent_layout)
     LinearLayout parentLayout;
-
+    boolean after_launch;
     private ActionDonasiBaruActivity activity;
-
-    public  String s_nama_muzaki;
-    public  String s_alamat_muzaki;
-    public  String s_no_identitas_muzaki;
-    public  String s_no_telp_muzaki;
-    public  String s_jumlah_donasi;
-
-    public  boolean errorForm;
-     boolean after_launch;
-
-
     private Unbinder unbinder;
     private PicassoLoader imageLoader;
 
@@ -123,17 +116,15 @@ public class Step1AddJadwalFragment extends Fragment {
 
             idMustahiq.setText(activity.mustahiqPrepareDonasi.id_mustahiq);
 
-            imageLoader.loadImage(fotoProfil, activity.mustahiqPrepareDonasi.nama_mustahiq, activity.mustahiqPrepareDonasi.nama_mustahiq);
-            namaMustahiq.setText("Nama : " + activity.mustahiqPrepareDonasi.nama_mustahiq);
-            alamatMustahiq.setText("Alamat : " + (TextUtils.isNullOrEmpty(activity.mustahiqPrepareDonasi.alamat_mustahiq) ? "-" : activity.mustahiqPrepareDonasi.alamat_mustahiq));
-            noIdentitas.setText("No Identitas : " + (TextUtils.isNullOrEmpty(activity.mustahiqPrepareDonasi.no_identitas_mustahiq) ? "-" : activity.mustahiqPrepareDonasi.no_identitas_mustahiq));
-            noTelpMustahiq.setText("No Telp : " + (TextUtils.isNullOrEmpty(activity.mustahiqPrepareDonasi.no_telp_mustahiq) ? "-" : activity.mustahiqPrepareDonasi.no_telp_mustahiq));
-            validasiMustahiq.setText(Html.fromHtml("Status Validasi : " + (activity.mustahiqPrepareDonasi.validasi_mustahiq.equalsIgnoreCase("ya") ? "<font color='#002800'>Valid</font>" : "<font color='red'>Belum/Tidak Valid</font>")));
+            imageLoader.loadImage(fotoProfil, activity.mustahiqPrepareDonasi.nama_calon_mustahiq, activity.mustahiqPrepareDonasi.nama_calon_mustahiq);
+            namaCalonMustahiq.setText("Nama : " + activity.mustahiqPrepareDonasi.nama_calon_mustahiq);
+            alamatCalonMustahiq.setText("Alamat : " + (TextUtils.isNullOrEmpty(activity.mustahiqPrepareDonasi.alamat_calon_mustahiq) ? "-" : activity.mustahiqPrepareDonasi.alamat_calon_mustahiq));
+            noIdentitasCalonMustahiq.setText("No Identitas : " + (TextUtils.isNullOrEmpty(activity.mustahiqPrepareDonasi.no_identitas_calon_mustahiq) ? "-" : activity.mustahiqPrepareDonasi.no_identitas_calon_mustahiq));
+            noTelpCalonMustahiq.setText("No Telp : " + (TextUtils.isNullOrEmpty(activity.mustahiqPrepareDonasi.no_telp_calon_mustahiq) ? "-" : activity.mustahiqPrepareDonasi.no_telp_calon_mustahiq));
             statusMustahiq.setText(Html.fromHtml("Status Aktif : " + (activity.mustahiqPrepareDonasi.status_mustahiq.equalsIgnoreCase("aktif") ? "<font color='#002800'>Aktif</font>" : "<font color='red'>Tidak Aktif</font>")));
             namaAmilZakat.setText("Nama Amil Zakat : " + activity.mustahiqPrepareDonasi.nama_amil_zakat);
             waktuTerakhirDonasi.setText("Waktu Terakhir Menerima Donasi : " + (TextUtils.isNullOrEmpty(activity.mustahiqPrepareDonasi.waktu_terakhir_donasi) ? "-" : activity.mustahiqPrepareDonasi.waktu_terakhir_donasi));
             waktuTerakhirDonasi.setVisibility(View.GONE);
-            validasiMustahiq.setVisibility(View.GONE);
             statusMustahiq.setVisibility(View.GONE);
 
         }

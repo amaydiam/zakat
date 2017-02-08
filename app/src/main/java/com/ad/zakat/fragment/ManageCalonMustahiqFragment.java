@@ -21,7 +21,7 @@ import android.widget.RadioGroup;
 
 import com.ad.zakat.R;
 import com.ad.zakat.Zakat;
-import com.ad.zakat.model.Mustahiq;
+import com.ad.zakat.model.CalonMustahiq;
 import com.ad.zakat.utils.ApiHelper;
 import com.ad.zakat.utils.CustomVolley;
 import com.ad.zakat.utils.Menus;
@@ -42,7 +42,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-public class ManageDonasiFragment extends DialogFragment implements CustomVolley.OnCallbackResponse {
+public class ManageCalonMustahiqFragment extends DialogFragment implements CustomVolley.OnCallbackResponse {
     private static final String TAG_ADD = "TAG_ADD";
     private static final String TAG_EDIT = "TAG_EDIT";
     private static final String TAG_DELETE = "TAG_DELETE";
@@ -50,23 +50,21 @@ public class ManageDonasiFragment extends DialogFragment implements CustomVolley
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.nama_calon_mustahiq)
-    RobotoRegularEditText namaMustahiq;
+    RobotoRegularEditText namaCalonMustahiq;
     @BindView(R.id.alamat_calon_mustahiq)
-    RobotoRegularEditText alamatMustahiq;
+    RobotoRegularEditText alamatCalonMustahiq;
     @BindView(R.id.no_identitas_calon_mustahiq)
-    RobotoRegularEditText noIdentitasMustahiq;
+    RobotoRegularEditText noIdentitasCalonMustahiq;
     @BindView(R.id.no_telp_calon_mustahiq)
-    RobotoRegularEditText noTelpMustahiq;
-    @BindView(R.id.status_calon_mustahiq)
-    RadioGroup statusMustahiq;
-    @BindView(R.id.coordinatorLayout)
-    CoordinatorLayout coordinatorLayout;
-
-
+    RobotoRegularEditText noTelpCalonMustahiq;
     @BindView(R.id.aktif)
     RadioButton aktif;
     @BindView(R.id.tidak_aktif)
     RadioButton tidakAktif;
+    @BindView(R.id.status_calon_mustahiq)
+    RadioGroup statusCalonMustahiq;
+    @BindView(R.id.coordinatorLayout)
+    CoordinatorLayout coordinatorLayout;
 
     private SnackBar snackbar;
     private CustomVolley customVolley;
@@ -74,28 +72,28 @@ public class ManageDonasiFragment extends DialogFragment implements CustomVolley
     private ProgressDialog dialogProgress;
     private Unbinder butterKnife;
 
-    private String val_id_mustahiq;
+    private String val_id_calon_mustahiq;
     private String val_nama_calon_mustahiq = "";
     private String val_alamat_calon_mustahiq = "";
     private String val_no_identitas_calon_mustahiq = "";
     private String val_no_telp_calon_mustahiq = "";
-
     private String val_status_calon_mustahiq = "";
 
-    private Mustahiq mustahiq;
+
+    private CalonMustahiq calonMustahiq;
     private Dialog alertDialog;
-    private AddEditDonasiListener callback;
+    private AddEditCalonMustahiqListener callback;
     private String action;
 
-    public ManageDonasiFragment() {
+    public ManageCalonMustahiqFragment() {
 
     }
 
     void Action(int id) {
-        Utils.HideKeyboard(getActivity(), namaMustahiq);
-        Utils.HideKeyboard(getActivity(), alamatMustahiq);
-        Utils.HideKeyboard(getActivity(), noIdentitasMustahiq);
-        Utils.HideKeyboard(getActivity(), noTelpMustahiq);
+        Utils.HideKeyboard(getActivity(), namaCalonMustahiq);
+        Utils.HideKeyboard(getActivity(), alamatCalonMustahiq);
+        Utils.HideKeyboard(getActivity(), noIdentitasCalonMustahiq);
+        Utils.HideKeyboard(getActivity(), noTelpCalonMustahiq);
         switch (id) {
 
             case Menus.SEND:
@@ -104,7 +102,8 @@ public class ManageDonasiFragment extends DialogFragment implements CustomVolley
                 if (val_nama_calon_mustahiq.length() == 0
                         || val_alamat_calon_mustahiq.length() == 0
                         || val_no_identitas_calon_mustahiq.length() == 0
-                        || val_no_telp_calon_mustahiq.length() == 0) {
+                        || val_no_telp_calon_mustahiq.length() == 0
+                        || val_status_calon_mustahiq.length() == 0) {
                     snackbar.show("Harap isi semua form...");
                     return;
                 }
@@ -128,7 +127,7 @@ public class ManageDonasiFragment extends DialogFragment implements CustomVolley
                 } else if (action.equals("edit")) {
                     TAG = TAG_EDIT;
                     jsonParams.put(Zakat.id_calon_mustahiq,
-                            val_id_mustahiq);
+                            val_id_calon_mustahiq);
 
                 }
 
@@ -144,27 +143,27 @@ public class ManageDonasiFragment extends DialogFragment implements CustomVolley
 
     private void getData() {
 
-        val_nama_calon_mustahiq = namaMustahiq.getText().toString().trim();
-        val_alamat_calon_mustahiq = alamatMustahiq.getText().toString().trim();
-        val_no_identitas_calon_mustahiq = noIdentitasMustahiq.getText().toString().trim();
-        val_no_telp_calon_mustahiq = noTelpMustahiq.getText().toString().trim();
+        val_nama_calon_mustahiq = namaCalonMustahiq.getText().toString().trim();
+        val_alamat_calon_mustahiq = alamatCalonMustahiq.getText().toString().trim();
+        val_no_identitas_calon_mustahiq = noIdentitasCalonMustahiq.getText().toString().trim();
+        val_no_telp_calon_mustahiq = noTelpCalonMustahiq.getText().toString().trim();
 
-
-        if (statusMustahiq.getCheckedRadioButtonId() == R.id.aktif)
+        if (statusCalonMustahiq.getCheckedRadioButtonId() == R.id.aktif)
             val_status_calon_mustahiq = "Aktif";
         else
             val_status_calon_mustahiq = "Tidak Aktif";
+
 
     }
 
     private void ConfirmDelete() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        alertDialogBuilder.setMessage("Anda yakin akan menghapus calon_mustahiq ini?");
+        alertDialogBuilder.setMessage("Anda yakin akan menghapus calon mustahiq ini?");
 
         alertDialogBuilder.setPositiveButton("Ya", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface arg0, int arg1) {
-                queue = customVolley.Rest(Request.Method.GET, ApiHelper.getCalonMustahiqDeleteLink(getActivity(), val_id_mustahiq), null, TAG_DELETE);
+                queue = customVolley.Rest(Request.Method.GET, ApiHelper.getCalonMustahiqDeleteLink(getActivity(), val_id_calon_mustahiq), null, TAG_DELETE);
 
             }
         });
@@ -211,30 +210,24 @@ public class ManageDonasiFragment extends DialogFragment implements CustomVolley
             JSONObject json = new JSONObject(response);
             String res = json.getString(Zakat.isSuccess);
             String message = json.getString(Zakat.message);
-            String s_mustahiq = json.getString(Zakat.calon_mustahiq);
             if (Boolean.valueOf(res)) {
                 if (!TAG.equals(TAG_DELETE)) {
-
-                    JSONObject obj = json.getJSONObject(s_mustahiq);
-                    String id_mustahiq = obj.getString(Zakat.id_mustahiq);
+                    JSONObject obj = new JSONObject(json.getString(Zakat.calon_mustahiq));
                     String id_calon_mustahiq = obj.getString(Zakat.id_calon_mustahiq);
                     String nama_calon_mustahiq = obj.getString(Zakat.nama_calon_mustahiq);
                     String alamat_calon_mustahiq = obj.getString(Zakat.alamat_calon_mustahiq);
                     String no_identitas_calon_mustahiq = obj.getString(Zakat.no_identitas_calon_mustahiq);
                     String no_telp_calon_mustahiq = obj.getString(Zakat.no_telp_calon_mustahiq);
                     String status_calon_mustahiq = obj.getString(Zakat.status_calon_mustahiq);
-                    String id_amil_zakat = obj.getString(Zakat.id_amil_zakat);
-                    String nama_amil_zakat = obj.getString(Zakat.nama_amil_zakat);
-                    String waktu_terakhir_donasi = obj.getString(Zakat.waktu_terakhir_donasi);
 
-                    mustahiq = new Mustahiq(id_mustahiq, id_calon_mustahiq, nama_calon_mustahiq, alamat_calon_mustahiq, no_identitas_calon_mustahiq, no_telp_calon_mustahiq, status_calon_mustahiq, id_amil_zakat, nama_amil_zakat, waktu_terakhir_donasi);
+                    calonMustahiq = new CalonMustahiq(id_calon_mustahiq, nama_calon_mustahiq, alamat_calon_mustahiq, no_identitas_calon_mustahiq, no_telp_calon_mustahiq, status_calon_mustahiq);
                     if (TAG.equals(TAG_ADD)) {
-                        callback.onFinishAddDonasi(mustahiq);
+                        callback.onFinishAddCalonMustahiq(calonMustahiq);
                     } else if (TAG.equals(TAG_EDIT)) {
-                        callback.onFinishEditDonasi(mustahiq);
+                        callback.onFinishEditCalonMustahiq(calonMustahiq);
                     }
                 } else {
-                    callback.onFinishDeleteDonasi(mustahiq);
+                    callback.onFinishDeleteCalonMustahiq(calonMustahiq);
                 }
                 dismiss();
                 snackbar.show(message);
@@ -257,7 +250,7 @@ public class ManageDonasiFragment extends DialogFragment implements CustomVolley
         super.onCreate(savedInstanceState);
 
         try {
-            callback = (AddEditDonasiListener) getTargetFragment();
+            callback = (AddEditCalonMustahiqListener) getTargetFragment();
         } catch (Exception e) {
             throw new ClassCastException("Calling Fragment must implement KonfirmasiPendaftaranPesertaListener");
         }
@@ -271,14 +264,14 @@ public class ManageDonasiFragment extends DialogFragment implements CustomVolley
         this.action = action;
     }
 
-    public void setData(Mustahiq mustahiq) {
-        this.mustahiq = mustahiq;
+    public void setData(CalonMustahiq calon_mustahiq) {
+        this.calonMustahiq = calon_mustahiq;
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
 
         View view = inflater.inflate(
-                R.layout.content_manage_mustahiq, container);
+                R.layout.content_manage_calon_mustahiq, container);
 
         butterKnife = ButterKnife.bind(this, view);
         customVolley = new CustomVolley(getActivity());
@@ -299,7 +292,7 @@ public class ManageDonasiFragment extends DialogFragment implements CustomVolley
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               dismiss();
+                dismiss();
             }
         });
         toolbar.inflateMenu(R.menu.menu_manage);
@@ -315,22 +308,24 @@ public class ManageDonasiFragment extends DialogFragment implements CustomVolley
                         .colorRes(R.color.white)
                         .actionBarSize());
 
+        // Spinner on item click listener
+
         if (action.equals("edit")) {
             toolbar.setSubtitle("Ubah");
             _delete.setVisible(true);
 
 
-            val_id_mustahiq = mustahiq.id_mustahiq;
-            val_nama_calon_mustahiq = mustahiq.nama_calon_mustahiq;
-            val_alamat_calon_mustahiq = mustahiq.alamat_calon_mustahiq;
-            val_no_identitas_calon_mustahiq = mustahiq.no_identitas_calon_mustahiq;
-            val_no_telp_calon_mustahiq = mustahiq.no_telp_calon_mustahiq;
-            val_status_calon_mustahiq = mustahiq.status_mustahiq;
+            val_id_calon_mustahiq = calonMustahiq.id_calon_mustahiq;
+            val_nama_calon_mustahiq = calonMustahiq.nama_calon_mustahiq;
+            val_alamat_calon_mustahiq = calonMustahiq.alamat_calon_mustahiq;
+            val_no_identitas_calon_mustahiq = calonMustahiq.no_identitas_calon_mustahiq;
+            val_no_telp_calon_mustahiq = calonMustahiq.no_telp_calon_mustahiq;
+            val_status_calon_mustahiq = calonMustahiq.status_calon_mustahiq;
 
-            namaMustahiq.setText(val_nama_calon_mustahiq);
-            alamatMustahiq.setText(val_alamat_calon_mustahiq);
-            noIdentitasMustahiq.setText(val_no_identitas_calon_mustahiq);
-            noTelpMustahiq.setText(val_no_telp_calon_mustahiq);
+            namaCalonMustahiq.setText(val_nama_calon_mustahiq);
+            alamatCalonMustahiq.setText(val_alamat_calon_mustahiq);
+            noIdentitasCalonMustahiq.setText(val_no_identitas_calon_mustahiq);
+            noTelpCalonMustahiq.setText(val_no_telp_calon_mustahiq);
 
             if (val_status_calon_mustahiq.equalsIgnoreCase("Aktif"))
                 aktif.setChecked(true);
@@ -362,12 +357,12 @@ public class ManageDonasiFragment extends DialogFragment implements CustomVolley
     }
 
 
-    public interface AddEditDonasiListener {
-        void onFinishEditDonasi(Mustahiq mustahiq);
+    public interface AddEditCalonMustahiqListener {
+        void onFinishEditCalonMustahiq(CalonMustahiq calon_mustahiq);
 
-        void onFinishAddDonasi(Mustahiq mustahiq);
+        void onFinishAddCalonMustahiq(CalonMustahiq calon_mustahiq);
 
-        void onFinishDeleteDonasi(Mustahiq mustahiq);
+        void onFinishDeleteCalonMustahiq(CalonMustahiq calon_mustahiq);
     }
 
 

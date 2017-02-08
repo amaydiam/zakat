@@ -1,8 +1,9 @@
 package com.ad.zakat.fragment;
 
-import android.content.Intent;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
@@ -15,8 +16,7 @@ import android.widget.TextView;
 
 import com.ad.zakat.R;
 import com.ad.zakat.Zakat;
-import com.ad.zakat.activity.ActionDonasiBaruActivity;
-import com.ad.zakat.model.Mustahiq;
+import com.ad.zakat.model.CalonMustahiq;
 import com.ad.zakat.utils.ApiHelper;
 import com.ad.zakat.utils.CustomVolley;
 import com.ad.zakat.utils.TextUtils;
@@ -27,6 +27,7 @@ import com.android.volley.RequestQueue;
 import com.github.clans.fab.FloatingActionButton;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.MaterialIcons;
+import com.sdsmdg.tastytoast.TastyToast;
 
 import org.json.JSONObject;
 
@@ -38,7 +39,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class DonasiDetailFragment extends Fragment implements ManageDonasiFragment.AddEditDonasiListener, CustomVolley.OnCallbackResponse {
+public class CalonMustahiqDetailFragment extends Fragment implements ManageCalonMustahiqFragment.AddEditCalonMustahiqListener, CustomVolley.OnCallbackResponse {
 
     private static final String TAG_DETAIL = "TAG_DETAIL";
     @BindBool(R.bool.is_tablet)
@@ -65,7 +66,6 @@ public class DonasiDetailFragment extends Fragment implements ManageDonasiFragme
     NestedScrollView movieHolder;
     @BindView(R.id.fab_action)
     FloatingActionButton fabAction;
-    // Basic info
     @BindView(R.id.foto_profil)
     AvatarView fotoProfil;
     @BindView(R.id.nama_calon_mustahiq)
@@ -76,30 +76,33 @@ public class DonasiDetailFragment extends Fragment implements ManageDonasiFragme
     RobotoLightTextView noIdentitasCalonMustahiq;
     @BindView(R.id.no_telp_calon_mustahiq)
     RobotoLightTextView noTelpCalonMustahiq;
-    @BindView(R.id.nama_amil_zakat)
-    RobotoLightTextView namaAmilZakat;
-    @BindView(R.id.status_mustahiq)
-    RobotoLightTextView statusMustahiq;
-    @BindView(R.id.waktu_terakhir_donasi)
-    RobotoLightTextView waktuTerakhirDonasi;
+    @BindView(R.id.status_calon_mustahiq)
+    RobotoLightTextView statusCalonMustahiq;
+    private ProgressDialog dialogProgress;
     private Unbinder unbinder;
     private String id;
-    private Mustahiq mustahiq;
+    private CalonMustahiq calonMustahiq;
     private PicassoLoader imageLoader;
     private CustomVolley customVolley;
     private RequestQueue queue;
 
     @OnClick(R.id.fab_action)
-    void DonasiMustahiq() {
-        Intent i = new Intent(getActivity(), ActionDonasiBaruActivity.class);
-        i.putExtra(Zakat.calon_mustahiq, mustahiq);
-        getActivity().startActivityForResult(i, 1);
+    void EditMustahiq() {
+
+        FragmentManager fragmentManager = getChildFragmentManager();
+        ManageCalonMustahiqFragment manageMustahiq = new ManageCalonMustahiqFragment();
+        manageMustahiq.setTargetFragment(this, 0);
+        manageMustahiq.setCancelable(false);
+        manageMustahiq.setDialogTitle("Calon Mustahiq");
+        manageMustahiq.setAction("edit");
+        manageMustahiq.setData(calonMustahiq);
+        manageMustahiq.show(fragmentManager, "Manage Calon Mustahiq");
     }
 
     // Fragment lifecycle
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_mustahiq_detail, container, false);
+        View v = inflater.inflate(R.layout.fragment_calon_mustahiq_detail, container, false);
         unbinder = ButterKnife.bind(this, v);
         customVolley = new CustomVolley(getActivity());
         customVolley.setOnCallbackResponse(this);
@@ -119,7 +122,7 @@ public class DonasiDetailFragment extends Fragment implements ManageDonasiFragme
 
         //setup fab
         fabAction.setImageDrawable(
-                new IconDrawable(getActivity(), MaterialIcons.md_attach_money)
+                new IconDrawable(getActivity(), MaterialIcons.md_edit)
                         .colorRes(R.color.white)
                         .actionBarSize());
 
@@ -136,7 +139,7 @@ public class DonasiDetailFragment extends Fragment implements ManageDonasiFragme
             }
         } else {
             id = savedInstanceState.getString(Zakat.CALON_MUSTAHIQ_ID);
-            mustahiq = savedInstanceState.getParcelable(Zakat.CALON_MUSTAHIQ_OBJECT);
+            calonMustahiq = savedInstanceState.getParcelable(Zakat.CALON_MUSTAHIQ_OBJECT);
             onDownloadSuccessful();
         }
 
@@ -152,9 +155,9 @@ public class DonasiDetailFragment extends Fragment implements ManageDonasiFragme
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (mustahiq != null && id != null) {
+        if (calonMustahiq != null && id != null) {
             outState.putString(Zakat.CALON_MUSTAHIQ_ID, id);
-            outState.putParcelable(Zakat.CALON_MUSTAHIQ_OBJECT, mustahiq);
+            outState.putParcelable(Zakat.CALON_MUSTAHIQ_OBJECT, calonMustahiq);
         }
     }
 
@@ -171,7 +174,7 @@ public class DonasiDetailFragment extends Fragment implements ManageDonasiFragme
 
     // JSON parsing and display
     private void downloadLokasiDetails(String id) {
-        String urlToDownload = ApiHelper.getMustahiqDetailLink(getActivity(), id);
+        String urlToDownload = ApiHelper.getCalonMustahiqDetailLink(getActivity(), id);
         queue = customVolley.Rest(Request.Method.GET, urlToDownload, null, TAG_DETAIL);
     }
 
@@ -183,18 +186,15 @@ public class DonasiDetailFragment extends Fragment implements ManageDonasiFragme
         movieHolder.setVisibility(View.VISIBLE);
         fabAction.setVisibility(View.VISIBLE);
 
-        toolbar.setTitle(mustahiq.nama_calon_mustahiq);
+        toolbar.setTitle(calonMustahiq.nama_calon_mustahiq);
         toolbarTextHolder.setVisibility(View.GONE);
 
-        imageLoader.loadImage(fotoProfil, mustahiq.nama_calon_mustahiq, mustahiq.nama_calon_mustahiq);
-        namaCalonMustahiq.setText("Nama : " + mustahiq.nama_calon_mustahiq);
-        alamatCalonMustahiq.setText("Alamat : " + (TextUtils.isNullOrEmpty(mustahiq.alamat_calon_mustahiq) ? "-" : mustahiq.alamat_calon_mustahiq));
-        noIdentitasCalonMustahiq.setText("No Identitas : " + (TextUtils.isNullOrEmpty(mustahiq.no_identitas_calon_mustahiq) ? "-" : mustahiq.no_identitas_calon_mustahiq));
-        noTelpCalonMustahiq.setText("No Telp : " + (TextUtils.isNullOrEmpty(mustahiq.no_telp_calon_mustahiq) ? "-" : mustahiq.no_telp_calon_mustahiq));
-        statusMustahiq.setText(Html.fromHtml("Status Aktif : " + (mustahiq.status_mustahiq.equalsIgnoreCase("aktif") ? "<font color='#002800'>Aktif</font>" : "<font color='red'>Tidak Aktif</font>")));
-        namaAmilZakat.setText("Nama Amil Zakat : " + mustahiq.nama_amil_zakat);
-        waktuTerakhirDonasi.setText("Waktu Terakhir Menerima Donasi : " + (TextUtils.isNullOrEmpty(mustahiq.waktu_terakhir_donasi) ? "-" : mustahiq.waktu_terakhir_donasi));
-
+        imageLoader.loadImage(fotoProfil, calonMustahiq.nama_calon_mustahiq, calonMustahiq.nama_calon_mustahiq);
+        namaCalonMustahiq.setText("Nama : " + calonMustahiq.nama_calon_mustahiq);
+        alamatCalonMustahiq.setText("Alamat : " + (TextUtils.isNullOrEmpty(calonMustahiq.alamat_calon_mustahiq) ? "-" : calonMustahiq.alamat_calon_mustahiq));
+        noIdentitasCalonMustahiq.setText("No Identitas : " + (TextUtils.isNullOrEmpty(calonMustahiq.no_identitas_calon_mustahiq) ? "-" : calonMustahiq.no_identitas_calon_mustahiq));
+        noTelpCalonMustahiq.setText("No Telp : " + (TextUtils.isNullOrEmpty(calonMustahiq.no_telp_calon_mustahiq) ? "-" : calonMustahiq.no_telp_calon_mustahiq));
+        statusCalonMustahiq.setText(Html.fromHtml("Status Aktif : " + (calonMustahiq.status_calon_mustahiq.equalsIgnoreCase("aktif") ? "<font color='#002800'>Aktif</font>" : "<font color='red'>Tidak Aktif</font>")));
 
     }
 
@@ -227,68 +227,69 @@ public class DonasiDetailFragment extends Fragment implements ManageDonasiFragme
 
     @Override
     public void onVolleyStart(String TAG) {
-
+        if (TAG.equals(TAG_DETAIL)) {
+        }
     }
 
     @Override
     public void onVolleyEnd(String TAG) {
-
+        if (TAG.equals(TAG_DETAIL)) {
+        }
     }
 
     @Override
     public void onVolleySuccessResponse(String TAG, String response) {
-        try {
-            JSONObject jsonObject = new JSONObject(response);
-            String isSuccess = jsonObject.getString(Zakat.isSuccess);
-            String message = jsonObject.getString(Zakat.message);
+        if (TAG.equals(TAG_DETAIL)) {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String isSuccess = jsonObject.getString(Zakat.isSuccess);
+                String message = jsonObject.getString(Zakat.message);
+                JSONObject jsDetail = new JSONObject(jsonObject.getString(Zakat.calon_mustahiq));
+                String id_calon_mustahiq = jsDetail.getString(Zakat.id_calon_mustahiq);
+                String nama_calon_mustahiq = jsDetail.getString(Zakat.nama_calon_mustahiq);
+                String alamat_calon_mustahiq = jsDetail.getString(Zakat.alamat_calon_mustahiq);
+                String no_identitas_calon_mustahiq = jsDetail.getString(Zakat.no_identitas_calon_mustahiq);
+                String no_telp_calon_mustahiq = jsDetail.getString(Zakat.no_telp_calon_mustahiq);
+                String status_calon_mustahiq = jsDetail.getString(Zakat.status_calon_mustahiq);
 
-            JSONObject obj = new JSONObject(jsonObject.getString(Zakat.mustahiq));
-            String id_mustahiq = obj.getString(Zakat.id_mustahiq);
-            String id_calon_mustahiq = obj.getString(Zakat.id_calon_mustahiq);
-            String nama_calon_mustahiq = obj.getString(Zakat.nama_calon_mustahiq);
-            String alamat_calon_mustahiq = obj.getString(Zakat.alamat_calon_mustahiq);
-            String no_identitas_calon_mustahiq = obj.getString(Zakat.no_identitas_calon_mustahiq);
-            String no_telp_calon_mustahiq = obj.getString(Zakat.no_telp_calon_mustahiq);
-            String status_mustahiq = obj.getString(Zakat.status_mustahiq);
-            String id_amil_zakat = obj.getString(Zakat.id_amil_zakat);
-            String nama_amil_zakat = obj.getString(Zakat.nama_amil_zakat);
-            String waktu_terakhir_donasi = obj.getString(Zakat.waktu_terakhir_donasi);
+                calonMustahiq = new CalonMustahiq(id_calon_mustahiq, nama_calon_mustahiq, alamat_calon_mustahiq, no_identitas_calon_mustahiq, no_telp_calon_mustahiq, status_calon_mustahiq);
 
-            mustahiq = new Mustahiq(id_mustahiq, id_calon_mustahiq, nama_calon_mustahiq, alamat_calon_mustahiq, no_identitas_calon_mustahiq, no_telp_calon_mustahiq, status_mustahiq, id_amil_zakat, nama_amil_zakat, waktu_terakhir_donasi);
+                if (Boolean.parseBoolean(isSuccess))
+                    onDownloadSuccessful();
+                else
+                    onNotAvailable(message);
 
-            if (Boolean.parseBoolean(isSuccess))
-                onDownloadSuccessful();
-            else
-                onNotAvailable(message);
-
-        } catch (Exception ex) {
-            // Parsing error
-            onDownloadFailed();
-            Log.d("Parse Error", ex.getMessage(), ex);
+            } catch (Exception ex) {
+                // Parsing error
+                onDownloadFailed();
+                Log.d("Parse Error", ex.getMessage(), ex);
+            }
         }
     }
 
     @Override
     public void onVolleyErrorResponse(String TAG, String response) {
-
+        if (TAG.equals(TAG_DETAIL)) {
+            TastyToast.makeText(getActivity(), "Error ..", TastyToast.LENGTH_LONG, TastyToast.ERROR);
+        }
     }
 
     @Override
-    public void onFinishEditDonasi(Mustahiq mustahiq) {
-        this.mustahiq = mustahiq;
+    public void onFinishEditCalonMustahiq(CalonMustahiq calon_mustahiq) {
+        this.calonMustahiq = calon_mustahiq;
         onDownloadSuccessful();
 
     }
 
     @Override
-    public void onFinishAddDonasi(Mustahiq mustahiq) {
+    public void onFinishAddCalonMustahiq(CalonMustahiq calon_mustahiq) {
 
     }
 
     @Override
-    public void onFinishDeleteDonasi(Mustahiq mustahiq) {
+    public void onFinishDeleteCalonMustahiq(CalonMustahiq calon_mustahiq) {
 
-        onNotAvailable("Donasi ini tidak ada/dihapus");
+        onNotAvailable("Mustahiq ini tidak ada/dihapus");
     }
 
 

@@ -62,7 +62,7 @@ public class CariMustahiqActivity extends AppCompatActivity {
     public void loadDetailDonasiFragmentWith(String id_mustahiq) {
         DonasiDetailFragment fragment = new DonasiDetailFragment();
         Bundle args = new Bundle();
-        args.putString(Zakat.MUSTAHIQ_ID, id_mustahiq);
+        args.putString(Zakat.CALON_MUSTAHIQ_ID, id_mustahiq);
         fragment.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.detail_fragment, fragment).commit();
     }

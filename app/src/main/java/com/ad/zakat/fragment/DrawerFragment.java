@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.ad.zakat.R;
-import com.ad.zakat.R2;
 import com.ad.zakat.Zakat;
 import com.ad.zakat.utils.Menus;
 import com.ad.zakat.utils.Prefs;
@@ -34,16 +33,15 @@ import static android.support.design.widget.NavigationView.OnNavigationItemSelec
 
 public class DrawerFragment extends Fragment implements OnMenuItemClickListener, OnNavigationItemSelectedListener {
 
-    private Fragment fragment;
-    private Unbinder unbinder;
-
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
     @BindView(R.id.drawer_layout)
     public
     DrawerLayout drawerLayout;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
     @BindView(R.id.navigation_view)
     NavigationView navigationView;
+    private Fragment fragment;
+    private Unbinder unbinder;
     private MenuItem prevMenuItem;
 
     // Fragment lifecycle
@@ -105,10 +103,12 @@ public class DrawerFragment extends Fragment implements OnMenuItemClickListener,
 //donasi
         MenuItem drawer_laporan_donasi = menu.findItem(R.id.drawer_laporan_donasi);
         drawer_laporan_donasi.setIcon(new IconDrawable(getActivity(), MaterialCommunityIcons.mdi_file_document).actionBarSize());
-
-        //mustahiq
+//mustahiq
         MenuItem drawer_mustahiq = menu.findItem(R.id.drawer_mustahiq);
-        drawer_mustahiq.setIcon(new IconDrawable(getActivity(), FontAwesomeIcons.fa_user).actionBarSize());
+        drawer_mustahiq.setIcon(new IconDrawable(getActivity(), FontAwesomeIcons.fa_group).actionBarSize());
+        //calon_mustahiq
+        MenuItem drawer_calon_mustahiq = menu.findItem(R.id.drawer_calon_mustahiq);
+        drawer_calon_mustahiq.setIcon(new IconDrawable(getActivity(), FontAwesomeIcons.fa_user).actionBarSize());
 
     }
 
@@ -167,6 +167,9 @@ public class DrawerFragment extends Fragment implements OnMenuItemClickListener,
             case Menus.DRAWER_MUSTAHIQ:
                 setSelectedDrawerItem(Zakat.VIEW_TYPE_MUSTAHIQ);
                 return true;
+            case Menus.DRAWER_CALON_MUSTAHIQ:
+                setSelectedDrawerItem(Zakat.VIEW_TYPE_CALON_MUSTAHIQ);
+
             default:
                 return false;
         }
@@ -184,13 +187,17 @@ public class DrawerFragment extends Fragment implements OnMenuItemClickListener,
                 id = Menus.DRAWER_LAPORAN_DONASI;
                 fragment = new LaporanDonasiListFragment();
                 break;
-            case Menus.DRAWER_MUSTAHIQ:
+            case Zakat.VIEW_TYPE_MUSTAHIQ:
                 id = Menus.DRAWER_MUSTAHIQ;
-                fragment = new MustahiqListFragment();
+                fragment = MustahiqListFragment.newInstance();
+                break;
+            case Zakat.VIEW_TYPE_CALON_MUSTAHIQ:
+                id = Menus.DRAWER_CALON_MUSTAHIQ;
+                fragment = CalonMustahiqListFragment.newInstance();
                 break;
             default:
                 id = Menus.DRAWER_MUSTAHIQ;
-                fragment = new MustahiqListFragment();
+                fragment = MustahiqListFragment.newInstance();
                 break;
         }
         MenuItem item = navigationView.getMenu().findItem(id);

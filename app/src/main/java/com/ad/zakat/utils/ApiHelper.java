@@ -1,10 +1,8 @@
 package com.ad.zakat.utils;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 
 import com.ad.zakat.R;
-import com.ad.zakat.R2;
 
 public class ApiHelper {
 
@@ -31,23 +29,42 @@ public class ApiHelper {
         return getApiUrl(context) + "donasi/detail_donasi/" + id;
     }
 
+    //CalonMustahiq
+    public static String getCalonMustahiqLink(Context context, int page) {
+        return getApiUrl(context) + "calon_mustahiq/calon_mustahiq/" + page;
+    }
+
+    public static String getCalonMustahiqDetailLink(Context context, String id) {
+        return getApiUrl(context) + "calon_mustahiq/detail_calon_mustahiq/" + id;
+    }
+
+    public static String getCalonMustahiqAddEditLink(Context context) {
+        return getApiUrl(context) + "calon_mustahiq/addeditcalon_mustahiq/";
+    }
+
+
+    public static String getCalonMustahiqDeleteLink(Context context, String id) {
+        return getApiUrl(context) + "calon_mustahiq/delete_calon_mustahiq/" + id;
+    }
+
+
     //Mustahiq
     public static String getMustahiqLink(Context context, int page) {
         return getApiUrl(context) + "mustahiq/mustahiq/" + page;
     }
-
     public static String getMustahiqDetailLink(Context context, String id) {
         return getApiUrl(context) + "mustahiq/detail_mustahiq/" + id;
     }
 
-    public static String getMustahiqAddEditLink(Context context) {
-        return getApiUrl(context) + "mustahiq/addeditmustahiq/";
-    }
 
+    public static String getMustahiqAddEditLink(Context context) {
+        return getApiUrl(context) + "mustahiq/addedit_mustahiq/";
+    }
 
     public static String getMustahiqDeleteLink(Context context, String id) {
         return getApiUrl(context) + "mustahiq/delete_mustahiq/" + id;
     }
+
 
     //donasi
     public static String getDonasiLink(Context context, int page, String keyword) {

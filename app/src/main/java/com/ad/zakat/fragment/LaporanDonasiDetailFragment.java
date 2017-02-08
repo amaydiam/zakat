@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ad.zakat.R;
-import com.ad.zakat.R2;
 import com.ad.zakat.Zakat;
 import com.ad.zakat.model.LaporanDonasi;
 import com.ad.zakat.utils.ApiHelper;
@@ -37,9 +36,9 @@ import butterknife.Unbinder;
 
 public class LaporanDonasiDetailFragment extends Fragment implements CustomVolley.OnCallbackResponse {
 
+    private static final String TAG_DETAIL = "TAG_DETAIL";
     @BindBool(R.bool.is_tablet)
     boolean isTablet;
-
     // Toolbar
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -49,7 +48,6 @@ public class LaporanDonasiDetailFragment extends Fragment implements CustomVolle
     TextView toolbarTitle;
     @BindView(R.id.toolbar_subtitle)
     TextView toolbarSubtitle;
-
     // Main views
     @BindView(R.id.progress_circle)
     View progressCircle;
@@ -59,12 +57,10 @@ public class LaporanDonasiDetailFragment extends Fragment implements CustomVolle
     RobotoLightTextView textError;
     @BindView(R.id.try_again)
     RobotoBoldTextView tryAgain;
-    @BindView(R.id.movie_detail_holder)
-    NestedScrollView movieHolder;
 
     // Basic info
-
-
+    @BindView(R.id.movie_detail_holder)
+    NestedScrollView movieHolder;
     @BindView(R.id.foto_profil_muzaki)
     AvatarView fotoProfilMuzaki;
     @BindView(R.id.nama_muzaki)
@@ -77,37 +73,28 @@ public class LaporanDonasiDetailFragment extends Fragment implements CustomVolle
     RobotoLightTextView noTelpMuzaki;
     @BindView(R.id.status_muzaki)
     RobotoLightTextView statusMuzaki;
-
-
     @BindView(R.id.foto_profil_mustahiq)
     AvatarView fotoProfilMustahiq;
-    @BindView(R.id.nama_mustahiq)
+    @BindView(R.id.nama_calon_mustahiq)
     RobotoBoldTextView namaMustahiq;
-    @BindView(R.id.alamat_mustahiq)
+    @BindView(R.id.alamat_calon_mustahiq)
     RobotoLightTextView alamatMustahiq;
-    @BindView(R.id.no_identitas_mustahiq)
+    @BindView(R.id.no_identitas_calon_mustahiq)
     RobotoLightTextView noIdentitasMustahiq;
-    @BindView(R.id.no_telp_mustahiq)
+    @BindView(R.id.no_telp_calon_mustahiq)
     RobotoLightTextView noTelpMustahiq;
-    @BindView(R.id.validasi_mustahiq)
-    RobotoLightTextView validasiMustahiq;
-    @BindView(R.id.status_mustahiq)
+    @BindView(R.id.status_calon_mustahiq)
     RobotoLightTextView statusMustahiq;
     @BindView(R.id.nama_amil_zakat)
     RobotoLightTextView namaAmilZakat;
-
     @BindView(R.id.jumlah_donasi)
     RobotoLightTextView jumlahDonasi;
-
-
     private Unbinder unbinder;
     private String id;
     private LaporanDonasi laporanDonasi;
     private PicassoLoader imageLoader;
     private CustomVolley customVolley;
     private RequestQueue queue;
-    private static final String TAG_DETAIL = "TAG_DETAIL";
-
 
     // Fragment lifecycle
     @Override
@@ -190,7 +177,7 @@ public class LaporanDonasiDetailFragment extends Fragment implements CustomVolle
         errorMessage.setVisibility(View.GONE);
         movieHolder.setVisibility(View.VISIBLE);
 
-        toolbar.setTitle(laporanDonasi.nama_mustahiq);
+        toolbar.setTitle(laporanDonasi.nama_calon_mustahiq);
         toolbarTextHolder.setVisibility(View.GONE);
 
         imageLoader.loadImage(fotoProfilMuzaki, laporanDonasi.nama_muzaki, laporanDonasi.nama_muzaki);
@@ -204,13 +191,12 @@ public class LaporanDonasiDetailFragment extends Fragment implements CustomVolle
         jumlahDonasi.setText(Html.fromHtml("Jumlah Donasi : Rp. " + Utils.Rupiah(laporanDonasi.jumlah_donasi)));
 
 
-        imageLoader.loadImage(fotoProfilMustahiq, laporanDonasi.nama_mustahiq, laporanDonasi.nama_mustahiq);
-        namaMustahiq.setText("Nama : " + laporanDonasi.nama_mustahiq);
-        alamatMustahiq.setText("Alamat : " + (TextUtils.isNullOrEmpty(laporanDonasi.alamat_mustahiq) ? "-" : laporanDonasi.alamat_mustahiq));
-        noIdentitasMustahiq.setText("No Identitas : " + (TextUtils.isNullOrEmpty(laporanDonasi.no_identitas_mustahiq) ? "-" : laporanDonasi.no_identitas_mustahiq));
-        noTelpMustahiq.setText("No Telp : " + (TextUtils.isNullOrEmpty(laporanDonasi.no_telp_mustahiq) ? "-" : laporanDonasi.no_telp_mustahiq));
-        validasiMustahiq.setText(Html.fromHtml("Status Validasi : " + (laporanDonasi.validasi_mustahiq.equalsIgnoreCase("ya") ? "<font color='#002800'>Valid</font>" : "<font color='red'>Belum/Tidak Valid</font>")));
-        statusMustahiq.setText(Html.fromHtml("Status Aktif : " + (laporanDonasi.status_mustahiq.equalsIgnoreCase("aktif") ? "<font color='#002800'>Aktif</font>" : "<font color='red'>Tidak Aktif</font>")));
+        imageLoader.loadImage(fotoProfilMustahiq, laporanDonasi.nama_calon_mustahiq, laporanDonasi.nama_calon_mustahiq);
+        namaMustahiq.setText("Nama : " + laporanDonasi.nama_calon_mustahiq);
+        alamatMustahiq.setText("Alamat : " + (TextUtils.isNullOrEmpty(laporanDonasi.alamat_calon_mustahiq) ? "-" : laporanDonasi.alamat_calon_mustahiq));
+        noIdentitasMustahiq.setText("No Identitas : " + (TextUtils.isNullOrEmpty(laporanDonasi.no_identitas_calon_mustahiq) ? "-" : laporanDonasi.no_identitas_calon_mustahiq));
+        noTelpMustahiq.setText("No Telp : " + (TextUtils.isNullOrEmpty(laporanDonasi.no_telp_calon_mustahiq) ? "-" : laporanDonasi.no_telp_calon_mustahiq));
+        statusMustahiq.setText(Html.fromHtml("Status Aktif : " + (laporanDonasi.status_calon_mustahiq.equalsIgnoreCase("aktif") ? "<font color='#002800'>Aktif</font>" : "<font color='red'>Tidak Aktif</font>")));
         namaAmilZakat.setText("Nama Amil Zakat : " + laporanDonasi.nama_amil_zakat);
 
     }
@@ -270,12 +256,12 @@ public class LaporanDonasiDetailFragment extends Fragment implements CustomVolle
             String status_muzaki = jsDetail.getString(Zakat.status_muzaki);
 
             String id_mustahiq = jsDetail.getString(Zakat.id_mustahiq);
-            String nama_mustahiq = jsDetail.getString(Zakat.nama_mustahiq);
-            String alamat_mustahiq = jsDetail.getString(Zakat.alamat_mustahiq);
-            String no_identitas_mustahiq = jsDetail.getString(Zakat.no_identitas_mustahiq);
-            String no_telp_mustahiq = jsDetail.getString(Zakat.no_telp_mustahiq);
-            String validasi_mustahiq = jsDetail.getString(Zakat.validasi_mustahiq);
-            String status_mustahiq = jsDetail.getString(Zakat.status_mustahiq);
+            String id_calon_mustahiq = jsDetail.getString(Zakat.id_calon_mustahiq);
+            String nama_calon_mustahiq = jsDetail.getString(Zakat.nama_calon_mustahiq);
+            String alamat_calon_mustahiq = jsDetail.getString(Zakat.alamat_calon_mustahiq);
+            String no_identitas_calon_mustahiq = jsDetail.getString(Zakat.no_identitas_calon_mustahiq);
+            String no_telp_calon_mustahiq = jsDetail.getString(Zakat.no_telp_calon_mustahiq);
+            String status_calon_mustahiq = jsDetail.getString(Zakat.status_calon_mustahiq);
             String id_amil_zakat = jsDetail.getString(Zakat.id_amil_zakat);
             String nama_amil_zakat = jsDetail.getString(Zakat.nama_amil_zakat);
 
@@ -289,12 +275,12 @@ public class LaporanDonasiDetailFragment extends Fragment implements CustomVolle
                     no_telp_muzaki,
                     status_muzaki,
                     id_mustahiq,
-                    nama_mustahiq,
-                    alamat_mustahiq,
-                    no_identitas_mustahiq,
-                    no_telp_mustahiq,
-                    validasi_mustahiq,
-                    status_mustahiq,
+                    id_calon_mustahiq,
+                    nama_calon_mustahiq,
+                    alamat_calon_mustahiq,
+                    no_identitas_calon_mustahiq,
+                    no_telp_calon_mustahiq,
+                    status_calon_mustahiq,
                     id_amil_zakat,
                     nama_amil_zakat);
 

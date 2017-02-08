@@ -17,9 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.ad.zakat.R;
-import com.ad.zakat.model.LaporanDonasi;
+import com.ad.zakat.model.CalonMustahiq;
 import com.ad.zakat.utils.TextUtils;
-import com.ad.zakat.utils.Utils;
 import com.ad.zakat.widget.RobotoBoldTextView;
 import com.ad.zakat.widget.RobotoLightTextView;
 import com.joanzapata.iconify.widget.IconButton;
@@ -31,9 +30,9 @@ import agency.tango.android.avatarview.views.AvatarView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class LaporanDonasiAdapter extends RecyclerView.Adapter<LaporanDonasiAdapter.ViewHolder> implements View.OnTouchListener, View.OnClickListener {
+public class CalonMustahiqAdapter extends RecyclerView.Adapter<CalonMustahiqAdapter.ViewHolder> implements View.OnTouchListener, View.OnClickListener {
 
-    public final ArrayList<LaporanDonasi> data;
+    public final ArrayList<CalonMustahiq> data;
     private final GestureDetector gestureDetector;
     private final PicassoLoader imageLoader;
     GradientDrawable bgShape = new GradientDrawable();
@@ -42,12 +41,12 @@ public class LaporanDonasiAdapter extends RecyclerView.Adapter<LaporanDonasiAdap
     private Activity activity;
     private SparseBooleanArray mSelectedItemsIds;
     private int selected = -1;
-    private OnLaporanDonasiItemClickListener OnLaporanDonasiItemClickListener;
+    private OnCalonMustahiqItemClickListener OnCalonMustahiqItemClickListener;
 
 
-    public LaporanDonasiAdapter(Activity activity, ArrayList<LaporanDonasi> mustahiqList, boolean isTable) {
+    public CalonMustahiqAdapter(Activity activity, ArrayList<CalonMustahiq> calon_mustahiqList, boolean isTable) {
         this.activity = activity;
-        this.data = mustahiqList;
+        this.data = calon_mustahiqList;
         mSelectedItemsIds = new SparseBooleanArray();
         gestureDetector = new GestureDetector(activity, new SingleTapConfirm());
         this.isTablet = isTable;
@@ -55,8 +54,8 @@ public class LaporanDonasiAdapter extends RecyclerView.Adapter<LaporanDonasiAdap
 
     }
 
-    public void setOnLaporanDonasiItemClickListener(OnLaporanDonasiItemClickListener onLaporanDonasiItemClickListener) {
-        this.OnLaporanDonasiItemClickListener = onLaporanDonasiItemClickListener;
+    public void setOnCalonMustahiqItemClickListener(OnCalonMustahiqItemClickListener onCalonMustahiqItemClickListener) {
+        this.OnCalonMustahiqItemClickListener = onCalonMustahiqItemClickListener;
     }
 
     @Override
@@ -65,10 +64,10 @@ public class LaporanDonasiAdapter extends RecyclerView.Adapter<LaporanDonasiAdap
         final int viewId = v.getId();
         if (viewId == R.id.btn_action) {
             if (gestureDetector.onTouchEvent(event)) {
-                if (OnLaporanDonasiItemClickListener != null) {
+                if (OnCalonMustahiqItemClickListener != null) {
                     AudioManager audioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
                     audioManager.playSoundEffect(SoundEffectConstants.CLICK);
-                    OnLaporanDonasiItemClickListener.onActionClick(v, (Integer) v.getTag());
+                    OnCalonMustahiqItemClickListener.onActionClick(v, (Integer) v.getTag());
                 }
             }
         }
@@ -78,8 +77,8 @@ public class LaporanDonasiAdapter extends RecyclerView.Adapter<LaporanDonasiAdap
 
     @Override
     public void onClick(View v) {
-        if (OnLaporanDonasiItemClickListener != null) {
-            OnLaporanDonasiItemClickListener.onRootClick(v, (Integer) v.getTag());
+        if (OnCalonMustahiqItemClickListener != null) {
+            OnCalonMustahiqItemClickListener.onRootClick(v, (Integer) v.getTag());
         }
     }
 
@@ -105,7 +104,7 @@ public class LaporanDonasiAdapter extends RecyclerView.Adapter<LaporanDonasiAdap
     public ViewHolder onCreateViewHolder(ViewGroup parent,
                                          int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_donasi_list, parent, false);
+                .inflate(R.layout.item_mustahiq_list, parent, false);
         ViewHolder holder = new ViewHolder(v);
         holder.rootParent.setOnClickListener(this);
         holder.btnAction.setOnTouchListener(this);
@@ -114,26 +113,18 @@ public class LaporanDonasiAdapter extends RecyclerView.Adapter<LaporanDonasiAdap
 
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.btnAction.setVisibility(View.GONE);
-        LaporanDonasi laporanDonasi = data.get(position);
-
-        imageLoader.loadImage(holder.fotoProfilMuzaki, laporanDonasi.nama_muzaki, laporanDonasi.nama_muzaki);
-        holder.namaMuzaki.setText("Nama : " + laporanDonasi.nama_muzaki);
-        holder.alamatMuzaki.setText("Alamat : " + (TextUtils.isNullOrEmpty(laporanDonasi.alamat_muzaki) ? "-" : laporanDonasi.alamat_muzaki));
-        holder.noIdentitasMuzaki.setText("No Identitas : " + (TextUtils.isNullOrEmpty(laporanDonasi.no_identitas_muzaki) ? "-" : laporanDonasi.no_identitas_muzaki));
-        holder.noTelpMuzaki.setText("No Telp : " + (TextUtils.isNullOrEmpty(laporanDonasi.no_telp_muzaki) ? "-" : laporanDonasi.no_telp_muzaki));
-        holder.statusMuzaki.setText(Html.fromHtml("Status Aktif : " + (laporanDonasi.status_muzaki.equalsIgnoreCase("aktif") ? "<font color='#002800'>Aktif</font>" : "<font color='red'>Tidak Aktif</font>")));
-
-
-        holder.jumlahDonasi.setText(Html.fromHtml("Jumlah Donasi : Rp. " + Utils.Rupiah(laporanDonasi.jumlah_donasi)));
-
-
-        imageLoader.loadImage(holder.fotoProfilMustahiq, laporanDonasi.nama_calon_mustahiq, laporanDonasi.nama_calon_mustahiq);
-        holder.namaMustahiq.setText("Nama : " + laporanDonasi.nama_calon_mustahiq);
-        holder.alamatMustahiq.setText("Alamat : " + (TextUtils.isNullOrEmpty(laporanDonasi.alamat_calon_mustahiq) ? "-" : laporanDonasi.alamat_calon_mustahiq));
-        holder.noIdentitasMustahiq.setText("No Identitas : " + (TextUtils.isNullOrEmpty(laporanDonasi.no_identitas_calon_mustahiq) ? "-" : laporanDonasi.no_identitas_calon_mustahiq));
-        holder.noTelpMustahiq.setText("No Telp : " + (TextUtils.isNullOrEmpty(laporanDonasi.no_telp_calon_mustahiq) ? "-" : laporanDonasi.no_telp_calon_mustahiq));
-        holder.statusMustahiq.setText(Html.fromHtml("Status Aktif : " + (laporanDonasi.status_calon_mustahiq.equalsIgnoreCase("aktif") ? "<font color='#002800'>Aktif</font>" : "<font color='red'>Tidak Aktif</font>")));
-        holder.namaAmilZakat.setText("Nama Amil Zakat : " + laporanDonasi.nama_amil_zakat);
+        CalonMustahiq calon_mustahiq = data.get(position);
+        imageLoader.loadImage(holder.fotoProfil, calon_mustahiq.nama_calon_mustahiq, calon_mustahiq.nama_calon_mustahiq);
+        holder.namaCalonMustahiq.setText("Nama : " + calon_mustahiq.nama_calon_mustahiq);
+        holder.alamatCalonMustahiq.setText(Html.fromHtml("Alamat : " + (!TextUtils.isNullOrEmpty(keyword_alamat) && calon_mustahiq.alamat_calon_mustahiq.contains(keyword_alamat) ?
+                calon_mustahiq.alamat_calon_mustahiq.replaceAll("(?i)" + keyword_alamat, "<font color='" + ContextCompat.getColor(activity, R.color.accent) + "'>" + keyword_alamat + "</font>") : calon_mustahiq.alamat_calon_mustahiq)));
+        holder.noIdentitasCalonMustahiq.setText("No Identitas : " + (TextUtils.isNullOrEmpty(calon_mustahiq.no_identitas_calon_mustahiq) ? "-" : calon_mustahiq.no_identitas_calon_mustahiq));
+        holder.noTelpCalonMustahiq.setText("No Telp : " + (TextUtils.isNullOrEmpty(calon_mustahiq.no_telp_calon_mustahiq) ? "-" : calon_mustahiq.no_telp_calon_mustahiq));
+        holder.statusCalonMustahiq.setText(Html.fromHtml("Status Validasi : " + (calon_mustahiq.status_calon_mustahiq.equalsIgnoreCase("ya") ? "<font color='#002800'>Valid</font>" : "<font color='red'>Belum/Tidak Valid</font>")));
+        holder.statusCalonMustahiq.setText(Html.fromHtml("Status Aktif : " + (calon_mustahiq.status_calon_mustahiq.equalsIgnoreCase("aktif") ? "<font color='#002800'>Aktif</font>" : "<font color='red'>Tidak Aktif</font>")));
+        holder.statusMustahiq.setVisibility(View.GONE);
+        holder.namaAmilZakat.setVisibility(View.GONE);
+        holder.waktuTerakhirDonasi.setVisibility(View.GONE);
 
         if (isTablet) {
             if (selected == position)
@@ -193,7 +184,7 @@ public class LaporanDonasiAdapter extends RecyclerView.Adapter<LaporanDonasiAdap
         notifyDataSetChanged();
     }
 
-    public interface OnLaporanDonasiItemClickListener {
+    public interface OnCalonMustahiqItemClickListener {
         void onActionClick(View v, int position);
 
         void onRootClick(View v, int position);
@@ -201,34 +192,24 @@ public class LaporanDonasiAdapter extends RecyclerView.Adapter<LaporanDonasiAdap
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.foto_profil_muzaki)
-        AvatarView fotoProfilMuzaki;
-        @BindView(R.id.nama_muzaki)
-        RobotoBoldTextView namaMuzaki;
-        @BindView(R.id.alamat_muzaki)
-        RobotoLightTextView alamatMuzaki;
-        @BindView(R.id.no_identitas_muzaki)
-        RobotoLightTextView noIdentitasMuzaki;
-        @BindView(R.id.no_telp_muzaki)
-        RobotoLightTextView noTelpMuzaki;
-        @BindView(R.id.status_muzaki)
-        RobotoLightTextView statusMuzaki;
-        @BindView(R.id.foto_profil_mustahiq)
-        AvatarView fotoProfilMustahiq;
+        @BindView(R.id.foto_profil)
+        AvatarView fotoProfil;
         @BindView(R.id.nama_calon_mustahiq)
-        RobotoBoldTextView namaMustahiq;
+        RobotoBoldTextView namaCalonMustahiq;
         @BindView(R.id.alamat_calon_mustahiq)
-        RobotoLightTextView alamatMustahiq;
+        RobotoLightTextView alamatCalonMustahiq;
         @BindView(R.id.no_identitas_calon_mustahiq)
-        RobotoLightTextView noIdentitasMustahiq;
+        RobotoLightTextView noIdentitasCalonMustahiq;
         @BindView(R.id.no_telp_calon_mustahiq)
-        RobotoLightTextView noTelpMustahiq;
+        RobotoLightTextView noTelpCalonMustahiq;
         @BindView(R.id.status_calon_mustahiq)
+        RobotoLightTextView statusCalonMustahiq;
+        @BindView(R.id.status_mustahiq)
         RobotoLightTextView statusMustahiq;
         @BindView(R.id.nama_amil_zakat)
         RobotoLightTextView namaAmilZakat;
-        @BindView(R.id.jumlah_donasi)
-        RobotoLightTextView jumlahDonasi;
+        @BindView(R.id.waktu_terakhir_donasi)
+        RobotoLightTextView waktuTerakhirDonasi;
         @BindView(R.id.btn_action)
         IconButton btnAction;
         @BindView(R.id.root_parent)

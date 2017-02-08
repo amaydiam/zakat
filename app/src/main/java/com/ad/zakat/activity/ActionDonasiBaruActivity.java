@@ -29,7 +29,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.ad.zakat.R;
-import com.ad.zakat.R2;
 import com.ad.zakat.Zakat;
 import com.ad.zakat.fragment.Step1AddJadwalFragment;
 import com.ad.zakat.fragment.Step2AddJadwalFragment;
@@ -65,24 +64,22 @@ import pl.aprilapps.easyphotopicker.EasyImage;
 @SuppressLint("NewApi")
 public class ActionDonasiBaruActivity extends AppCompatActivity implements CustomVolley.OnCallbackResponse {
 
+    @BindView(R.id.pager)
+    public JazzyViewPager mPager;
+    public boolean default_pager;
+    public Mustahiq mustahiqPrepareDonasi;
+    protected String tipe_jadwal_pewaris;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.tabs)
     TabLayout tabLayout;
-    @BindView(R.id.pager)
-    public JazzyViewPager mPager;
-
     private TabFragmentAdapter mAdapter;
-    public boolean default_pager;
-    protected String tipe_jadwal_pewaris;
     @SuppressLint("UseSparseArrays")
     private Map<Integer, Fragment> mPageReferenceMap = new HashMap<>();
     private CustomVolley customVolley;
     private String TAG_SUBMIT = "TAG_SUBMIT";
     private RequestQueue queue;
     private ProgressDialog dialogProgress;
-
-    public Mustahiq mustahiqPrepareDonasi;
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -93,7 +90,7 @@ public class ActionDonasiBaruActivity extends AppCompatActivity implements Custo
                 .with(new MaterialModule())
                 .with(new MaterialCommunityModule());
 
-        mustahiqPrepareDonasi = (Mustahiq) getIntent().getParcelableExtra(Zakat.mustahiq);
+        mustahiqPrepareDonasi = getIntent().getParcelableExtra(Zakat.calon_mustahiq);
 
 
         customVolley = new CustomVolley(this);
@@ -156,58 +153,6 @@ public class ActionDonasiBaruActivity extends AppCompatActivity implements Custo
 
     }
 
-    public class TabFragmentAdapter extends FragmentPagerAdapter {
-
-        TabFragmentAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    Step1AddJadwalFragment Step1 = new Step1AddJadwalFragment();
-                    mPager.setObjectForPosition(Step1, position);
-                    mPageReferenceMap.put(position, Step1);
-                    return Step1;
-                case 1:
-                    Step2AddJadwalFragment Step2 = new Step2AddJadwalFragment();
-                    mPager.setObjectForPosition(Step2, position);
-                    mPageReferenceMap.put(position, Step2);
-                    return Step2;
-            }
-            return null;
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "INFO";
-                case 1:
-                    return "BUKTI PEMBAYARAN";
-            }
-            return null;
-        }
-
-        @Override
-        public void destroyItem(View container, int position, Object object) {
-            super.destroyItem(container, position, object);
-            mPageReferenceMap.remove(position);
-        }
-
-        Fragment getFragment(int key) {
-            return mPageReferenceMap.get(key);
-        }
-
-    }
-
-
     public void SubmitData1(int position) {
         Fragment fragment = mAdapter.getFragment(0);
         if (fragment instanceof Step1AddJadwalFragment) {
@@ -224,7 +169,6 @@ public class ActionDonasiBaruActivity extends AppCompatActivity implements Custo
         }
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -238,7 +182,6 @@ public class ActionDonasiBaruActivity extends AppCompatActivity implements Custo
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     public void simpanData() {
         SubmitDataDanSave();
@@ -325,14 +268,13 @@ public class ActionDonasiBaruActivity extends AppCompatActivity implements Custo
                     String no_identitas_muzaki = jsDetail.getString(Zakat.no_identitas_muzaki);
                     String no_telp_muzaki = jsDetail.getString(Zakat.no_telp_muzaki);
                     String status_muzaki = jsDetail.getString(Zakat.status_muzaki);
-
                     String id_mustahiq = jsDetail.getString(Zakat.id_mustahiq);
-                    String nama_mustahiq = jsDetail.getString(Zakat.nama_mustahiq);
-                    String alamat_mustahiq = jsDetail.getString(Zakat.alamat_mustahiq);
-                    String no_identitas_mustahiq = jsDetail.getString(Zakat.no_identitas_mustahiq);
-                    String no_telp_mustahiq = jsDetail.getString(Zakat.no_telp_mustahiq);
-                    String validasi_mustahiq = jsDetail.getString(Zakat.validasi_mustahiq);
-                    String status_mustahiq = jsDetail.getString(Zakat.status_mustahiq);
+                    String id_calon_mustahiq = jsDetail.getString(Zakat.id_calon_mustahiq);
+                    String nama_calon_mustahiq = jsDetail.getString(Zakat.nama_calon_mustahiq);
+                    String alamat_calon_mustahiq = jsDetail.getString(Zakat.alamat_calon_mustahiq);
+                    String no_identitas_calon_mustahiq = jsDetail.getString(Zakat.no_identitas_calon_mustahiq);
+                    String no_telp_calon_mustahiq = jsDetail.getString(Zakat.no_telp_calon_mustahiq);
+                    String status_calon_mustahiq = jsDetail.getString(Zakat.status_calon_mustahiq);
                     String id_amil_zakat = jsDetail.getString(Zakat.id_amil_zakat);
                     String nama_amil_zakat = jsDetail.getString(Zakat.nama_amil_zakat);
 
@@ -346,12 +288,12 @@ public class ActionDonasiBaruActivity extends AppCompatActivity implements Custo
                             no_telp_muzaki,
                             status_muzaki,
                             id_mustahiq,
-                            nama_mustahiq,
-                            alamat_mustahiq,
-                            no_identitas_mustahiq,
-                            no_telp_mustahiq,
-                            validasi_mustahiq,
-                            status_mustahiq,
+                            id_calon_mustahiq,
+                            nama_calon_mustahiq,
+                            alamat_calon_mustahiq,
+                            no_identitas_calon_mustahiq,
+                            no_telp_calon_mustahiq,
+                            status_calon_mustahiq,
                             id_amil_zakat,
                             nama_amil_zakat);
 
@@ -367,7 +309,6 @@ public class ActionDonasiBaruActivity extends AppCompatActivity implements Custo
         }
 
     }
-
 
     @Override
     public void onVolleyErrorResponse(String TAG, String response) {
@@ -417,12 +358,10 @@ public class ActionDonasiBaruActivity extends AppCompatActivity implements Custo
         });
     }
 
-
     @Override
     public void onBackPressed() {
         backActivity();
     }
-
 
     private void backActivity() {
         {
@@ -471,6 +410,57 @@ public class ActionDonasiBaruActivity extends AppCompatActivity implements Custo
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+    }
+
+    public class TabFragmentAdapter extends FragmentPagerAdapter {
+
+        TabFragmentAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    Step1AddJadwalFragment Step1 = new Step1AddJadwalFragment();
+                    mPager.setObjectForPosition(Step1, position);
+                    mPageReferenceMap.put(position, Step1);
+                    return Step1;
+                case 1:
+                    Step2AddJadwalFragment Step2 = new Step2AddJadwalFragment();
+                    mPager.setObjectForPosition(Step2, position);
+                    mPageReferenceMap.put(position, Step2);
+                    return Step2;
+            }
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "INFO";
+                case 1:
+                    return "BUKTI PEMBAYARAN";
+            }
+            return null;
+        }
+
+        @Override
+        public void destroyItem(View container, int position, Object object) {
+            super.destroyItem(container, position, object);
+            mPageReferenceMap.remove(position);
+        }
+
+        Fragment getFragment(int key) {
+            return mPageReferenceMap.get(key);
+        }
 
     }
 }

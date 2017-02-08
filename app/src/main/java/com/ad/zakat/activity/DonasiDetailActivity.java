@@ -5,16 +5,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
-import com.ad.zakat.R; import com.ad.zakat.R2;
+import com.ad.zakat.R;
 import com.ad.zakat.Zakat;
 import com.ad.zakat.fragment.DialogDetailDonasiFragment;
 import com.ad.zakat.fragment.DonasiDetailFragment;
 import com.ad.zakat.model.LaporanDonasi;
-import com.ad.zakat.utils.Menus;
 import com.ad.zakat.utils.Prefs;
 
 public class DonasiDetailActivity extends AppCompatActivity {
@@ -30,7 +28,7 @@ public class DonasiDetailActivity extends AppCompatActivity {
             Uri data = intent.getData();
             if (data == null) {
                 // Not loading from deep link
-                mustahiqId = getIntent().getStringExtra(Zakat.MUSTAHIQ_ID);
+                mustahiqId = getIntent().getStringExtra(Zakat.CALON_MUSTAHIQ_ID);
                 loadDonasiDetailsOf(mustahiqId);
             } else {
                 // Loading from deep link
@@ -66,7 +64,7 @@ public class DonasiDetailActivity extends AppCompatActivity {
     private void loadDonasiDetailsOf(String mustahiqId) {
         DonasiDetailFragment fragment = new DonasiDetailFragment();
         Bundle args = new Bundle();
-        args.putString(Zakat.MUSTAHIQ_ID, mustahiqId);
+        args.putString(Zakat.CALON_MUSTAHIQ_ID, mustahiqId);
         fragment.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.content_detail_container, fragment).commit();
     }
@@ -83,7 +81,7 @@ public class DonasiDetailActivity extends AppCompatActivity {
 
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
-                LaporanDonasi laporanDonasi = (LaporanDonasi) data.getParcelableExtra(Zakat.LAPORAN_DONASI_OBJECT);
+                LaporanDonasi laporanDonasi = data.getParcelableExtra(Zakat.LAPORAN_DONASI_OBJECT);
                 if (laporanDonasi != null) {
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                     DialogDetailDonasiFragment dialogDetailDonasiFragment = new DialogDetailDonasiFragment();

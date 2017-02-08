@@ -27,7 +27,6 @@ import android.widget.TextView;
 
 import com.ad.zakat.R;
 import com.ad.zakat.Zakat;
-import com.ad.zakat.activity.CariLaporanDonasiActivity;
 import com.ad.zakat.activity.CariMustahiqActivity;
 import com.ad.zakat.activity.DonasiDetailActivity;
 import com.ad.zakat.activity.DrawerActivity;
@@ -70,7 +69,7 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
 
     private static final String TAG_ATAS = "atas";
     private static final String TAG_BAWAH = "bawah";
-
+    public MustahiqAdapter adapter;
     @BindBool(R.bool.is_tablet)
     boolean isTablet;
     @BindView(R.id.recyclerview)
@@ -87,16 +86,6 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
     com.github.clans.fab.FloatingActionButton fabAction;
     @BindView(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
-    private ArrayList<Mustahiq> data = new ArrayList<>();
-    private GridLayoutManager mLayoutManager;
-    private String keyword = null;
-
-    @OnClick(R.id.fab_scroll_up)
-    void ScrollUp() {
-        recyclerView.smoothScrollToPosition(0);
-    }
-
-
     //error
     @BindView(R.id.error_message)
     View errorMessage;
@@ -106,12 +95,42 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
     TextView textError;
     @BindView(R.id.try_again)
     TextView tryAgain;
-
-
     @BindView(R.id.search)
     EditText search;
     @BindView(R.id.parent_search)
     CardView parentSearch;
+    private ArrayList<Mustahiq> data = new ArrayList<>();
+    private GridLayoutManager mLayoutManager;
+    private String keyword = null;
+    private Integer position_delete;
+    private ProgressDialog dialogProgress;
+    private FragmentActivity activity;
+    private Unbinder butterknife;
+    private boolean isFinishLoadingAwalData = true;
+    private boolean isLoadingMoreData = false;
+    private boolean isFinishMoreData = false;
+    private int page = 1;
+    private boolean isRefresh = false;
+    private CustomVolley customVolley;
+    private RequestQueue queue;
+    private int mPreviousVisibleItem;
+
+    public DonasiListFragment() {
+    }
+
+    /**
+     * Returns a new instance of this fragment for the given section
+     * number.
+     */
+    public static DonasiListFragment newInstance() {
+        return new DonasiListFragment();
+    }
+    //  private String session_key;
+
+    @OnClick(R.id.fab_scroll_up)
+    void ScrollUp() {
+        recyclerView.smoothScrollToPosition(0);
+    }
 
     @OnClick(R.id.btn_search)
     void btn_search() {
@@ -123,27 +142,6 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
         RefreshData();
     }
 
-
-    private Integer position_delete;
-    private ProgressDialog dialogProgress;
-    private FragmentActivity activity;
-    private Unbinder butterknife;
-    public MustahiqAdapter adapter;
-    private boolean isFinishLoadingAwalData = true;
-    private boolean isLoadingMoreData = false;
-    private boolean isFinishMoreData = false;
-    private int page = 1;
-    private boolean isRefresh = false;
-    private CustomVolley customVolley;
-    private RequestQueue queue;
-    //  private String session_key;
-
-    private int mPreviousVisibleItem;
-
-    public DonasiListFragment() {
-    }
-
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -151,15 +149,6 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
             // activity = (DrawerActivity) context;
         }
         activity = getActivity();
-    }
-
-
-    /**
-     * Returns a new instance of this fragment for the given section
-     * number.
-     */
-    public static DonasiListFragment newInstance() {
-        return new DonasiListFragment();
     }
 
     @Override
@@ -199,7 +188,7 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
 
         if (!TextUtils.isNullOrEmpty(keyword))
             parentSearch.setVisibility(View.GONE);
-        //inisial adapter
+        //inisial adapterMustahiq
         adapter = new MustahiqAdapter(activity, data, isTablet);
         adapter.setValSearchAlamat(keyword);
         adapter.setOnMustahiqItemClickListener(this);
@@ -221,7 +210,7 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
         // set layout manager
         recyclerView.setLayoutManager(mLayoutManager);
 
-        // set adapter
+        // set adapterMustahiq
         recyclerView.setAdapter(adapter);
 
         //handle ringkas data
@@ -260,10 +249,10 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
           /* =========================================================================================
         ==================== Get Data List (Mustahiq) ================================================
         ============================================================================================*/
-        if (savedInstanceState == null || !savedInstanceState.containsKey(Zakat.MUSTAHIQ_ID)) {
+        if (savedInstanceState == null || !savedInstanceState.containsKey(Zakat.CALON_MUSTAHIQ_ID)) {
             getDataFromServer(TAG_AWAL);
         } else {
-            data = savedInstanceState.getParcelableArrayList(Zakat.MUSTAHIQ_ID);
+            data = savedInstanceState.getParcelableArrayList(Zakat.CALON_MUSTAHIQ_ID);
             page = savedInstanceState.getInt(Zakat.PAGE);
             isLoadingMoreData = savedInstanceState.getBoolean(Zakat.IS_LOADING_MORE_DATA);
             isFinishLoadingAwalData = savedInstanceState.getBoolean(Zakat.IS_FINISH_LOADING_AWAL_DATA);
@@ -437,11 +426,11 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
     private void setDataObject(String position, JSONObject obj) throws JSONException {
         //parse object
         String id_mustahiq = obj.getString(Zakat.id_mustahiq);
-        String nama_mustahiq = obj.getString(Zakat.nama_mustahiq);
-        String alamat_mustahiq = obj.getString(Zakat.alamat_mustahiq);
-        String no_identitas_mustahiq = obj.getString(Zakat.no_identitas_mustahiq);
-        String no_telp_mustahiq = obj.getString(Zakat.no_telp_mustahiq);
-        String validasi_mustahiq = obj.getString(Zakat.validasi_mustahiq);
+        String id_calon_mustahiq = obj.getString(Zakat.id_calon_mustahiq);
+        String nama_calon_mustahiq = obj.getString(Zakat.nama_calon_mustahiq);
+        String alamat_calon_mustahiq = obj.getString(Zakat.alamat_calon_mustahiq);
+        String no_identitas_calon_mustahiq = obj.getString(Zakat.no_identitas_calon_mustahiq);
+        String no_telp_calon_mustahiq = obj.getString(Zakat.no_telp_calon_mustahiq);
         String status_mustahiq = obj.getString(Zakat.status_mustahiq);
         String id_amil_zakat = obj.getString(Zakat.id_amil_zakat);
         String nama_amil_zakat = obj.getString(Zakat.nama_amil_zakat);
@@ -450,11 +439,11 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
         AddAndSetMapData(
                 position,
                 id_mustahiq,
-                nama_mustahiq,
-                alamat_mustahiq,
-                no_identitas_mustahiq,
-                no_telp_mustahiq,
-                validasi_mustahiq,
+                id_calon_mustahiq,
+                nama_calon_mustahiq,
+                alamat_calon_mustahiq,
+                no_identitas_calon_mustahiq,
+                no_telp_calon_mustahiq,
                 status_mustahiq,
                 id_amil_zakat,
                 nama_amil_zakat,
@@ -466,11 +455,11 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
     private void AddAndSetMapData(
             String position,
             String id_mustahiq,
-            String nama_mustahiq,
-            String alamat_mustahiq,
-            String no_identitas_mustahiq,
-            String no_telp_mustahiq,
-            String validasi_mustahiq,
+            String id_calon_mustahiq,
+            String nama_calon_mustahiq,
+            String alamat_calon_mustahiq,
+            String no_identitas_calon_mustahiq,
+            String no_telp_calon_mustahiq,
             String status_mustahiq,
             String id_amil_zakat,
             String nama_amil_zakat,
@@ -478,16 +467,15 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
 
         Mustahiq mustahiq = new Mustahiq(
                 id_mustahiq,
-                nama_mustahiq,
-                alamat_mustahiq,
-                no_identitas_mustahiq,
-                no_telp_mustahiq,
-                validasi_mustahiq,
+                id_calon_mustahiq,
+                nama_calon_mustahiq,
+                alamat_calon_mustahiq,
+                no_identitas_calon_mustahiq,
+                no_telp_calon_mustahiq,
                 status_mustahiq,
                 id_amil_zakat,
                 nama_amil_zakat,
                 waktu_terakhir_donasi);
-
 
         if (position.equals(TAG_BAWAH)) {
             data.add(mustahiq);
@@ -503,7 +491,7 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
     }
 
     public void RefreshData() {
-        // if (adapter.getItemCount() > 1) {
+        // if (adapterMustahiq.getItemCount() > 1) {
         isRefresh = true;
         isLoadingMoreData = false;
         isFinishLoadingAwalData = true;
@@ -595,7 +583,7 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
     @Override
     public void onVolleyErrorResponse(String TAG, String response) {
         if (TAG.equals(TAG_DELETE)) {
-            TastyToast.makeText(activity, "Error hapus mustahiq...", TastyToast.LENGTH_LONG, TastyToast.ERROR);
+            TastyToast.makeText(activity, "Error hapus calon_mustahiq...", TastyToast.LENGTH_LONG, TastyToast.ERROR);
         } else {
             if (TAG.equals(TAG_AWAL)) {
                 isFinishLoadingAwalData = false;
@@ -646,7 +634,7 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
             }
         } else {
             Intent intent = new Intent(activity, DonasiDetailActivity.class);
-            intent.putExtra(Zakat.MUSTAHIQ_ID, adapter.data.get(position).id_mustahiq);
+            intent.putExtra(Zakat.CALON_MUSTAHIQ_ID, adapter.data.get(position).id_mustahiq);
             startActivity(intent);
         }
 
@@ -654,7 +642,7 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
 /*
     public void OpenAtion(View v, final int position) {
 
-        final String id_mustahiq = adapter.data.get(position).id_mustahiq
+        final String id_calon_mustahiq = adapterMustahiq.data.get(position).id_calon_mustahiq
 
         PopupMenu popup = new PopupMenu(activity, v, Gravity.RIGHT);
         popup.getMenuInflater().inflate(R.menu.action_manage, popup.getMenu());
@@ -672,7 +660,7 @@ public class DonasiListFragment extends Fragment implements MustahiqAdapter.OnMu
                                             .colorRes(R.color.primary)
                                             .actionBarSize())
                             .setTitle("Hapus Donasi")
-                            .setMessage("Apa anda yakin akan menghapus mustahiq ini?")
+                            .setMessage("Apa anda yakin akan menghapus calon_mustahiq ini?")
                             .setPositiveButton("Ya", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {

@@ -114,44 +114,46 @@
             app:av_text_size_percentage="35" />
 
         <com.ad.zakat.widget.RobotoBoldTextView
-            android:id="@+id/nama_mustahiq"
+            android:id="@+id/nama_calon_mustahiq"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/text_primary"
             android:textSize="@dimen/text_large"
-            tools:text="nama_mustahiq" />
+            tools:text="nama_calon_mustahiq" />
 
         <com.ad.zakat.widget.RobotoLightTextView
-            android:id="@+id/alamat_mustahiq"
+            android:id="@+id/alamat_calon_mustahiq"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/text_primary"
             android:textSize="@dimen/text_large"
-            tools:text="alamat_mustahiq" />
+            tools:text="alamat_calon_mustahiq" />
 
         <com.ad.zakat.widget.RobotoLightTextView
-            android:id="@+id/no_identitas_mustahiq"
+            android:id="@+id/no_identitas_calon_mustahiq"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/text_primary"
             android:textSize="@dimen/text_large"
-            tools:text="no_identitas_mustahiq" />
+            tools:text="no_identitas_calon_mustahiq" />
 
         <com.ad.zakat.widget.RobotoLightTextView
-            android:id="@+id/no_telp_mustahiq"
+            android:id="@+id/no_telp_calon_mustahiq"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/text_primary"
             android:textSize="@dimen/text_large"
-            tools:text="no_telp_mustahiq" />   <com.ad.zakat.widget.RobotoLightTextView
+            tools:text="no_telp_calon_mustahiq" />
+
+        <com.ad.zakat.widget.RobotoLightTextView
         android:id="@+id/nama_amil_zakat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -161,25 +163,16 @@
         android:textSize="@dimen/text_large"
         tools:text="nama_amil_zakat" />
 
-        <com.ad.zakat.widget.RobotoLightTextView
-            android:id="@+id/validasi_mustahiq"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_large"
-            tools:text="validasi_mustahiq" />
 
         <com.ad.zakat.widget.RobotoLightTextView
-            android:id="@+id/status_mustahiq"
+            android:id="@+id/status_calon_mustahiq"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/text_primary"
             android:textSize="@dimen/text_large"
-            tools:text="status_mustahiq" />
+            tools:text="status_calon_mustahiq" />
         <com.ad.zakat.widget.RobotoLightTextView
             android:id="@+id/waktu_terakhir_donasi"
             android:layout_width="wrap_content"
@@ -203,12 +196,12 @@
 
     <com.ad.zakat.widget.RobotoLightTextView
 
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:id="@+id/jumlah_donasi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textColor="@color/text_primary"

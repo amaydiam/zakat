@@ -5,32 +5,44 @@ import android.os.Parcelable;
 
 public class LaporanDonasi implements Parcelable {
 
+    public static final Creator<LaporanDonasi> CREATOR = new Creator<LaporanDonasi>() {
+        @Override
+        public LaporanDonasi createFromParcel(Parcel in) {
+            return new LaporanDonasi(in);
+        }
+
+        @Override
+        public LaporanDonasi[] newArray(int size) {
+            return new LaporanDonasi[size];
+        }
+    };
     // Attributes
     public String id_donasi;
     public String jumlah_donasi;
-
     public String id_muzaki;
     public String nama_muzaki;
     public String alamat_muzaki;
     public String no_identitas_muzaki;
     public String no_telp_muzaki;
     public String status_muzaki;
-
     public String id_mustahiq;
-    public String nama_mustahiq;
-    public String alamat_mustahiq;
-    public String no_identitas_mustahiq;
-    public String no_telp_mustahiq;
-    public String validasi_mustahiq;
-    public String status_mustahiq;
+    public String id_calon_mustahiq;
+    public String nama_calon_mustahiq;
+    public String alamat_calon_mustahiq;
+    public String no_identitas_calon_mustahiq;
+    public String no_telp_calon_mustahiq;
+    public String status_calon_mustahiq;
     public String id_amil_zakat;
     public String nama_amil_zakat;
+
 
     // Constructor
     public LaporanDonasi(String id_donasi, String jumlah_donasi, String id_muzaki, String nama_muzaki, String alamat_muzaki, String no_identitas_muzaki, String no_telp_muzaki,
                          String status_muzaki,
-                         String id_mustahiq, String nama_mustahiq, String alamat_mustahiq, String no_identitas_mustahiq, String no_telp_mustahiq,
-                         String validasi_mustahiq, String status_mustahiq,
+                         String id_mustahiq,
+                         String id_calon_mustahiq,
+                         String nama_calon_mustahiq, String alamat_calon_mustahiq, String no_identitas_calon_mustahiq, String no_telp_calon_mustahiq,
+                         String status_calon_mustahiq,
                          String id_amil_zakat, String nama_amil_zakat) {
 
         this.id_donasi = id_donasi;
@@ -43,72 +55,55 @@ public class LaporanDonasi implements Parcelable {
         this.status_muzaki = status_muzaki;
 
         this.id_mustahiq = id_mustahiq;
-        this.nama_mustahiq = nama_mustahiq;
-        this.alamat_mustahiq = alamat_mustahiq;
-        this.no_identitas_mustahiq = no_identitas_mustahiq;
-        this.no_telp_mustahiq = no_telp_mustahiq;
-        this.validasi_mustahiq = validasi_mustahiq;
-        this.status_mustahiq = status_mustahiq;
+        this.id_calon_mustahiq = id_calon_mustahiq;
+        this.nama_calon_mustahiq = nama_calon_mustahiq;
+        this.alamat_calon_mustahiq = alamat_calon_mustahiq;
+        this.no_identitas_calon_mustahiq = no_identitas_calon_mustahiq;
+        this.no_telp_calon_mustahiq = no_telp_calon_mustahiq;
+        this.status_calon_mustahiq = status_calon_mustahiq;
         this.id_amil_zakat = id_amil_zakat;
         this.nama_amil_zakat =nama_amil_zakat;
     }
 
-    public LaporanDonasi(Parcel in) {
-        this.id_donasi = in.readString();
-        this.jumlah_donasi = in.readString();
-
-        this.id_muzaki = in.readString();
-        this.nama_muzaki = in.readString();
-        this.alamat_muzaki = in.readString();
-        this.no_identitas_muzaki = in.readString();
-        this.no_telp_muzaki = in.readString();
-        this.status_muzaki = in.readString();
-
-        this.id_mustahiq = in.readString();
-        this.nama_mustahiq = in.readString();
-        this.alamat_mustahiq = in.readString();
-        this.no_identitas_mustahiq = in.readString();
-        this.no_telp_mustahiq = in.readString();
-        this.validasi_mustahiq = in.readString();
-        this.status_mustahiq = in.readString();
-        this.id_amil_zakat = in.readString();
-        this.nama_amil_zakat = in.readString();
+    protected LaporanDonasi(Parcel in) {
+        id_donasi = in.readString();
+        jumlah_donasi = in.readString();
+        id_muzaki = in.readString();
+        nama_muzaki = in.readString();
+        alamat_muzaki = in.readString();
+        no_identitas_muzaki = in.readString();
+        no_telp_muzaki = in.readString();
+        status_muzaki = in.readString();
+        id_mustahiq = in.readString();
+        id_calon_mustahiq = in.readString();
+        nama_calon_mustahiq = in.readString();
+        alamat_calon_mustahiq = in.readString();
+        no_identitas_calon_mustahiq = in.readString();
+        no_telp_calon_mustahiq = in.readString();
+        status_calon_mustahiq = in.readString();
+        id_amil_zakat = in.readString();
+        nama_amil_zakat = in.readString();
     }
 
-    // Parcelable Creator
-    public static final Creator CREATOR = new Creator() {
-        public LaporanDonasi createFromParcel(Parcel in) {
-            return new LaporanDonasi(in);
-        }
-
-        public LaporanDonasi[] newArray(int size) {
-            return new LaporanDonasi[size];
-        }
-    };
-
-    // Parcelling methods
     @Override
-    public void writeToParcel(Parcel out, int i) {
-
-        out.writeString(id_donasi);
-        out.writeString(jumlah_donasi);
-
-        out.writeString(id_muzaki);
-        out.writeString(nama_muzaki);
-        out.writeString(alamat_muzaki);
-        out.writeString(no_identitas_muzaki);
-        out.writeString(no_telp_muzaki);
-        out.writeString(status_muzaki);
-
-        out.writeString(id_mustahiq);
-        out.writeString(nama_mustahiq);
-        out.writeString(alamat_mustahiq);
-        out.writeString(no_identitas_mustahiq);
-        out.writeString(no_telp_mustahiq);
-        out.writeString(validasi_mustahiq);
-        out.writeString(status_mustahiq);
-        out.writeString(id_amil_zakat);
-        out.writeString(nama_amil_zakat);
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id_donasi);
+        dest.writeString(jumlah_donasi);
+        dest.writeString(id_muzaki);
+        dest.writeString(nama_muzaki);
+        dest.writeString(alamat_muzaki);
+        dest.writeString(no_identitas_muzaki);
+        dest.writeString(no_telp_muzaki);
+        dest.writeString(status_muzaki);
+        dest.writeString(id_mustahiq);
+        dest.writeString(id_calon_mustahiq);
+        dest.writeString(nama_calon_mustahiq);
+        dest.writeString(alamat_calon_mustahiq);
+        dest.writeString(no_identitas_calon_mustahiq);
+        dest.writeString(no_telp_calon_mustahiq);
+        dest.writeString(status_calon_mustahiq);
+        dest.writeString(id_amil_zakat);
+        dest.writeString(nama_amil_zakat);
     }
 
     @Override

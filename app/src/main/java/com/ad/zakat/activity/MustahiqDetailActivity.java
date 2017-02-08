@@ -6,10 +6,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.ad.zakat.R; import com.ad.zakat.R2;
+import com.ad.zakat.R;
 import com.ad.zakat.Zakat;
 import com.ad.zakat.fragment.MustahiqDetailFragment;
-import com.ad.zakat.utils.Menus;
 import com.ad.zakat.utils.Prefs;
 
 public class MustahiqDetailActivity extends AppCompatActivity {

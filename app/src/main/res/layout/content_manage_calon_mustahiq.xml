@@ -41,55 +41,41 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Nama Mustahiq"
+                            android:text="Nama Calon Mustahiq"
                             android:textAppearance="?android:attr/textAppearanceSmall" />
 
-                        <RelativeLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
-
-                            <LinearLayout
-                                android:id="@+id/calon_mustahiq"
+                        <com.ad.zakat.widget.RobotoRegularEditText
+                            android:id="@+id/nama_calon_mustahiq"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                                android:layout_centerVertical="true"
-                                android:layout_toLeftOf="@+id/btn_pilih_calon_mustahiq"
                             android:ems="10"
                             android:inputType="textPersonName|textNoSuggestions"
-                                android:maxLines="1"
-                                android:orientation="vertical" />
+                            android:maxLines="1" />
 
-                            <Button
-                                android:id="@+id/btn_pilih_calon_mustahiq"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_alignParentRight="true"
-                                android:layout_centerVertical="true"
-                                android:text="Pilih Calon Mustahiq" />
-                        </RelativeLayout>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Alamat Mustahiq"
+                            android:text="Alamat Calon Mustahiq"
                             android:textAppearance="?android:attr/textAppearanceSmall" />
 
-                        <com.ad.zakat.widget.RobotoRegularTextView
+                        <com.ad.zakat.widget.RobotoRegularEditText
                             android:id="@+id/alamat_calon_mustahiq"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:ems="10"
                             android:gravity="top"
-                            android:inputType="textMultiLine|textNoSuggestions" />
+                            android:inputType="textMultiLine|textNoSuggestions"
+                            android:minHeight="150dp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Nomor Identitas Mustahiq"
+                            android:text="Nomor Identitas Calon Mustahiq"
                             android:textAppearance="?android:attr/textAppearanceSmall" />
 
-                        <com.ad.zakat.widget.RobotoRegularTextView
+                        <com.ad.zakat.widget.RobotoRegularEditText
                             android:id="@+id/no_identitas_calon_mustahiq"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -102,10 +88,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Nomor Telp Mustahiq"
+                            android:text="Nomor Telp Calon Mustahiq"
                             android:textAppearance="?android:attr/textAppearanceSmall" />
 
-                        <com.ad.zakat.widget.RobotoRegularTextView
+                        <com.ad.zakat.widget.RobotoRegularEditText
                             android:id="@+id/no_telp_calon_mustahiq"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -115,27 +101,15 @@
                             android:maxLines="1" />
 
 
-
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Amil Zakat"
-                            android:textAppearance="?android:attr/textAppearanceSmall" />
-                        <Spinner
-                            android:id="@+id/id_amil_zakat"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="Status Mustahiq"
+                            android:text="Status Calon Mustahiq"
                             android:textAppearance="?android:attr/textAppearanceSmall" />
 
                         <RadioGroup
-                            android:id="@+id/status_mustahiq"
+                            android:id="@+id/status_calon_mustahiq"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content">
 

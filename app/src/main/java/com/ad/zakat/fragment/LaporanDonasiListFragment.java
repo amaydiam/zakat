@@ -28,15 +28,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ad.zakat.R;
-import com.ad.zakat.R2;
 import com.ad.zakat.Zakat;
 import com.ad.zakat.activity.CariLaporanDonasiActivity;
-import com.ad.zakat.activity.LaporanDonasiDetailActivity;
 import com.ad.zakat.activity.DrawerActivity;
+import com.ad.zakat.activity.LaporanDonasiDetailActivity;
 import com.ad.zakat.adapter.LaporanDonasiAdapter;
-import com.ad.zakat.adapter.MustahiqAdapter;
 import com.ad.zakat.model.LaporanDonasi;
-import com.ad.zakat.model.Mustahiq;
 import com.ad.zakat.utils.ApiHelper;
 import com.ad.zakat.utils.CustomVolley;
 import com.ad.zakat.utils.TextUtils;
@@ -74,7 +71,7 @@ public class LaporanDonasiListFragment extends Fragment implements LaporanDonasi
 
     private static final String TAG_ATAS = "atas";
     private static final String TAG_BAWAH = "bawah";
-
+    public LaporanDonasiAdapter adapter;
     @BindBool(R.bool.is_tablet)
     boolean isTablet;
     @BindView(R.id.recyclerview)
@@ -91,16 +88,6 @@ public class LaporanDonasiListFragment extends Fragment implements LaporanDonasi
     com.github.clans.fab.FloatingActionButton fabAction;
     @BindView(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
-    private ArrayList<LaporanDonasi> data = new ArrayList<>();
-    private GridLayoutManager mLayoutManager;
-    private String keyword = null;
-
-    @OnClick(R.id.fab_scroll_up)
-    void ScrollUp() {
-        recyclerView.smoothScrollToPosition(0);
-    }
-
-
     //error
     @BindView(R.id.error_message)
     View errorMessage;
@@ -110,12 +97,42 @@ public class LaporanDonasiListFragment extends Fragment implements LaporanDonasi
     TextView textError;
     @BindView(R.id.try_again)
     TextView tryAgain;
-
-
     @BindView(R.id.search)
     EditText search;
     @BindView(R.id.parent_search)
     CardView parentSearch;
+    private ArrayList<LaporanDonasi> data = new ArrayList<>();
+    private GridLayoutManager mLayoutManager;
+    private String keyword = null;
+    private Integer position_delete;
+    private ProgressDialog dialogProgress;
+    private FragmentActivity activity;
+    private Unbinder butterknife;
+    private boolean isFinishLoadingAwalData = true;
+    private boolean isLoadingMoreData = false;
+    private boolean isFinishMoreData = false;
+    private int page = 1;
+    private boolean isRefresh = false;
+    private CustomVolley customVolley;
+    private RequestQueue queue;
+    private int mPreviousVisibleItem;
+
+    public LaporanDonasiListFragment() {
+    }
+
+    /**
+     * Returns a new instance of this fragment for the given section
+     * number.
+     */
+    public static LaporanDonasiListFragment newInstance() {
+        return new LaporanDonasiListFragment();
+    }
+    //  private String session_key;
+
+    @OnClick(R.id.fab_scroll_up)
+    void ScrollUp() {
+        recyclerView.smoothScrollToPosition(0);
+    }
 
     @OnClick(R.id.btn_search)
     void btn_search() {
@@ -127,27 +144,6 @@ public class LaporanDonasiListFragment extends Fragment implements LaporanDonasi
         RefreshData();
     }
 
-
-    private Integer position_delete;
-    private ProgressDialog dialogProgress;
-    private FragmentActivity activity;
-    private Unbinder butterknife;
-    public LaporanDonasiAdapter adapter;
-    private boolean isFinishLoadingAwalData = true;
-    private boolean isLoadingMoreData = false;
-    private boolean isFinishMoreData = false;
-    private int page = 1;
-    private boolean isRefresh = false;
-    private CustomVolley customVolley;
-    private RequestQueue queue;
-    //  private String session_key;
-
-    private int mPreviousVisibleItem;
-
-    public LaporanDonasiListFragment() {
-    }
-
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -155,15 +151,6 @@ public class LaporanDonasiListFragment extends Fragment implements LaporanDonasi
             // activity = (DrawerActivity) context;
         }
         activity = getActivity();
-    }
-
-
-    /**
-     * Returns a new instance of this fragment for the given section
-     * number.
-     */
-    public static LaporanDonasiListFragment newInstance() {
-        return new LaporanDonasiListFragment();
     }
 
     @Override
@@ -204,7 +191,7 @@ public class LaporanDonasiListFragment extends Fragment implements LaporanDonasi
 
         if (!TextUtils.isNullOrEmpty(keyword))
             parentSearch.setVisibility(View.GONE);
-        //inisial adapter
+        //inisial adapterMustahiq
         adapter = new LaporanDonasiAdapter(activity, data, isTablet);
         adapter.setValSearchAlamat(keyword);
         adapter.setOnLaporanDonasiItemClickListener(this);
@@ -226,7 +213,7 @@ public class LaporanDonasiListFragment extends Fragment implements LaporanDonasi
         // set layout manager
         recyclerView.setLayoutManager(mLayoutManager);
 
-        // set adapter
+        // set adapterMustahiq
         recyclerView.setAdapter(adapter);
 
         //handle ringkas data
@@ -450,13 +437,12 @@ public class LaporanDonasiListFragment extends Fragment implements LaporanDonasi
         String no_identitas_muzaki = obj.getString(Zakat.no_identitas_muzaki);
         String no_telp_muzaki = obj.getString(Zakat.no_telp_muzaki);
         String status_muzaki = obj.getString(Zakat.status_muzaki);
-        String id_mustahiq = obj.getString(Zakat.id_mustahiq);
-        String nama_mustahiq = obj.getString(Zakat.nama_mustahiq);
-        String alamat_mustahiq = obj.getString(Zakat.alamat_mustahiq);
-        String no_identitas_mustahiq = obj.getString(Zakat.no_identitas_mustahiq);
-        String no_telp_mustahiq = obj.getString(Zakat.no_telp_mustahiq);
-        String validasi_mustahiq = obj.getString(Zakat.validasi_mustahiq);
-        String status_mustahiq = obj.getString(Zakat.status_mustahiq);
+        String id_mustahiq = obj.getString(Zakat.id_calon_mustahiq);
+        String nama_calon_mustahiq = obj.getString(Zakat.nama_calon_mustahiq);
+        String alamat_calon_mustahiq = obj.getString(Zakat.alamat_calon_mustahiq);
+        String no_identitas_calon_mustahiq = obj.getString(Zakat.no_identitas_calon_mustahiq);
+        String no_telp_calon_mustahiq = obj.getString(Zakat.no_telp_calon_mustahiq);
+        String status_calon_mustahiq = obj.getString(Zakat.status_calon_mustahiq);
         String id_amil_zakat = obj.getString(Zakat.id_amil_zakat);
         String nama_amil_zakat = obj.getString(Zakat.nama_amil_zakat);
         //set map object
@@ -471,24 +457,23 @@ public class LaporanDonasiListFragment extends Fragment implements LaporanDonasi
                 no_telp_muzaki,
                 status_muzaki,
                 id_mustahiq,
-                nama_mustahiq,
-                alamat_mustahiq,
-                no_identitas_mustahiq,
-                no_telp_mustahiq,
-                validasi_mustahiq,
-                status_mustahiq,
+                nama_calon_mustahiq,
+                alamat_calon_mustahiq,
+                no_identitas_calon_mustahiq,
+                no_telp_calon_mustahiq,
+                status_calon_mustahiq,
                 id_amil_zakat,
                 nama_amil_zakat
         );
 
     }
 
-    private void AddAndSetMapData(String position, String id_donasi, String jumlah_donasi, String id_muzaki, String nama_muzaki, String alamat_muzaki, String no_identitas_muzaki, String no_telp_muzaki, String status_muzaki, String id_mustahiq, String nama_mustahiq, String alamat_mustahiq, String no_identitas_mustahiq, String no_telp_mustahiq, String validasi_mustahiq, String status_mustahiq, String id_amil_zakat, String nama_amil_zakat) {
+    private void AddAndSetMapData(String position, String id_donasi, String jumlah_donasi, String id_muzaki, String nama_muzaki, String alamat_muzaki, String no_identitas_muzaki, String no_telp_muzaki, String status_muzaki, String id_mustahiq, String nama_calon_mustahiq, String alamat_calon_mustahiq, String no_identitas_calon_mustahiq, String no_telp_calon_mustahiq, String status_calon_mustahiq, String id_amil_zakat, String nama_amil_zakat) {
 
         LaporanDonasi donasi = new LaporanDonasi(id_donasi, jumlah_donasi, id_muzaki, nama_muzaki, alamat_muzaki, no_identitas_muzaki, no_telp_muzaki,
                 status_muzaki,
-                id_mustahiq, nama_mustahiq, alamat_mustahiq, no_identitas_mustahiq, no_telp_mustahiq,
-                validasi_mustahiq, status_mustahiq,id_amil_zakat,nama_amil_zakat
+                id_mustahiq, nama_calon_mustahiq, alamat_calon_mustahiq, no_identitas_calon_mustahiq, no_telp_calon_mustahiq,
+                status_calon_mustahiq, status_calon_mustahiq, id_amil_zakat, nama_amil_zakat
 
         );
 
@@ -507,7 +492,7 @@ public class LaporanDonasiListFragment extends Fragment implements LaporanDonasi
     }
 
     public void RefreshData() {
-        // if (adapter.getItemCount() > 1) {
+        // if (adapterMustahiq.getItemCount() > 1) {
         isRefresh = true;
         isLoadingMoreData = false;
         isFinishLoadingAwalData = true;
@@ -658,7 +643,7 @@ public class LaporanDonasiListFragment extends Fragment implements LaporanDonasi
 /*
     public void OpenAtion(View v, final int position) {
 
-        final String id_donasi = adapter.data.get(position).id_donasi
+        final String id_donasi = adapterMustahiq.data.get(position).id_donasi
 
         PopupMenu popup = new PopupMenu(activity, v, Gravity.RIGHT);
         popup.getMenuInflater().inflate(R.menu.action_manage, popup.getMenu());
